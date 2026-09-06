@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="260" viewBox="0 0 1120 260" role="img" aria-labelledby="title desc">
-<title id="title">La pipeline locale di ITA-OCR</title><desc id="desc">Importazione del documento, preparazione, riconoscimento locale con GLM-OCR, confronto ed esportazione. Un PDF con testo può saltare il riconoscimento.</desc>
-<rect width="1120" height="260" rx="16" fill="#f0f2eb"/>
-<g font-family="Arial,sans-serif" fill="#263e30"><text x="38" y="40" font-size="12" letter-spacing="2">TUTTO IL RICONOSCIMENTO SUL TUO COMPUTER</text></g>
-<g fill="white" stroke="#c8d2c2"><rect x="38" y="70" width="226" height="118" rx="10"/><rect x="310" y="70" width="226" height="118" rx="10"/><rect x="582" y="70" width="226" height="118" rx="10"/><rect x="854" y="70" width="226" height="118" rx="10"/></g>
-<g font-family="Arial,sans-serif" fill="#263e30" font-size="20"><text x="58" y="108">Documento</text><text x="330" y="108">Preparazione</text><text x="602" y="108">GLM-OCR</text><text x="874" y="108">Confronto</text></g>
-<g font-family="Arial,sans-serif" fill="#667069" font-size="14"><text x="58" y="139">PDF o immagine</text><text x="330" y="139">Pagina e livello di testo</text><text x="602" y="139">llama.cpp · CPU / GPU</text><text x="874" y="139">Verifica ed esportazione</text><text x="38" y="227">Il testo già presente nei PDF può essere estratto direttamente. L’uscita OCR va sempre verificata.</text></g>
-<g fill="none" stroke="#225d43" stroke-width="2"><path d="M276 129h22m-7-6 7 6-7 6M548 129h22m-7-6 7 6-7 6M820 129h22m-7-6 7 6-7 6"/></g></svg>

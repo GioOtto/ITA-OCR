@@ -1,5 +1,7 @@
 # Installare su Windows
 
+*[English version](en/INSTALL.md)*
+
 ## Requisiti
 
 - Windows x64 con runtime WebView2 disponibile.

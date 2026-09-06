@@ -1,5 +1,7 @@
 # Valutazione e limiti
 
+*[English version](BENCHMARKS.en.md)*
+
 Questa distribuzione non include il dataset di addestramento o di valutazione,
 i documenti originali, le trascrizioni di riferimento o identificatori dei
 partecipanti. Le schermate usano contenuti sintetici e non costituiscono un
@@ -13,26 +15,26 @@ pagine incomplete, ripetizioni e latenza dell'intera pipeline. Preparazione
 della pagina, backend, quantizzazione e strategia di decodifica influenzano
 il risultato e devono essere indicati insieme a qualsiasi misura.
 
-Il set di verifica finale ? stato consultato pi? volte durante lo sviluppo:
-non ? un test indipendente incontaminato. Le misure interne vanno quindi
+Il set di verifica finale è stato consultato più volte durante lo sviluppo:
+non è un test indipendente incontaminato. Le misure interne vanno quindi
 interpretate come descrittive. Non viene pubblicata una classifica o una
 percentuale universale di accuratezza.
 
 ## Verifiche del pacchetto
 
-La build Windows ? stata collaudata con GPU AMD Radeon RX 7900 XT e Vulkan.
+La build Windows è stata collaudata con GPU AMD Radeon RX 7900 XT e Vulkan.
 Questo verifica che la pipeline possa completare un documento su quella
-configurazione, non certifica tutte le GPU n? la qualit? di ogni trascrizione.
+configurazione, non certifica tutte le GPU né la qualità di ogni trascrizione.
 La suite UI usa un ponte simulato e verifica le interazioni dell'app.
 
 ## Limiti noti
 
 - Scrittura complessa, impaginazione irregolare, formule e tabelle possono
   causare omissioni, sostituzioni, ripetizioni o contenuti inventati.
-- La correzione da dizionario pu? introdurre errori: le sostituzioni restano
+- La correzione da dizionario può introdurre errori: le sostituzioni restano
   evidenziate e il risultato va confrontato con l'originale.
 - Piccole variazioni nella decodifica GPU possono produrre risultati diversi.
-- Il riconoscimento su CPU pu? essere sensibilmente pi? lento.
+- Il riconoscimento su CPU può essere sensibilmente più lento.
 - I risultati ottenuti con risorse lessicali private non sono trasferibili
   automaticamente al pacchetto pubblico, che usa solo dizionari pubblici.
 

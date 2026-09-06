@@ -1,5 +1,7 @@
 # Componenti di terze parti
 
+*[English version](THIRD-PARTY.md)*
+
 Il codice originale di ITA-OCR è distribuito sotto [licenza MIT](LICENSE).
 Questa licenza copre il codice di questo repository e **non sostituisce** quelle
 dei componenti elencati qui sotto, che restano in vigore per le rispettive parti.

@@ -35,6 +35,14 @@ def main():
             page.evaluate("window.__fixture('completata')")
             page.locator(".testo-blocco").first.wait_for(state="visible")
             page.locator(".katex").first.wait_for(state="visible")
+            # Le anteprime arrivano da un osservatore piu' un rinvio di 150 ms:
+            # senza questa attesa la cattura coglie ancora il segnaposto
+            # "Caricamento anteprima" al posto della pagina.
+            page.locator("#scorri-documento .cornice img").first.wait_for(state="visible")
+            page.wait_for_function(
+                "() => [...document.querySelectorAll('#scorri-documento .cornice img')]"
+                ".every(i => i.complete && i.naturalWidth > 0)"
+            )
             for theme in ("chiaro", "scuro"):
                 page.locator(f'#scelta-tema [data-tema="{theme}"]').click()
                 page.screenshot(path=str(out / ("app-light.png" if theme == "chiaro" else "app-dark.png")))

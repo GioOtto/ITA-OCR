@@ -1,5 +1,7 @@
 # Scaricare il modello
 
+*[English version](en/MODEL.md)*
+
 I pesi non sono nel repository né nell'installer: sono due file GGUF per circa
 1,2 GB complessivi, oltre il limite per file di GitHub. Si scaricano da
 Hugging Face e si mettono accanto all'applicazione.

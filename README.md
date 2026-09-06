@@ -11,7 +11,8 @@
     <a href="LEGGIMI-WINDOWS.md">Compilare</a> ·
     <a href="https://github.com/GioOtto/ITA-OCR/issues">Segnalazioni</a>
   </p>
-  <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="Codice MIT" src="https://img.shields.io/badge/codice-MIT-27674c" /> <img alt="Inferenza locale" src="https://img.shields.io/badge/inferenza-locale-27674c" /></p>
+  <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="Codice MIT" src="https://img.shields.io/badge/codice-MIT-27674c" /> <img alt="Inferenza locale" src="https://img.shields.io/badge/inferenza-locale-27674c" /> <img alt="Nessuna telemetria" src="https://img.shields.io/badge/telemetria-nessuna-27674c" /></p>
+  <p><strong>Italiano</strong> · <a href="README.en.md">English</a></p>
 </div>
 
 ![Interfaccia di ITA-OCR: documento e trascrizione affiancati, esempio sintetico](docs/assets/app-light.png)
@@ -23,8 +24,8 @@
 ITA-OCR è un’app desktop per trascrivere pagine scritte a mano in italiano e
 documenti PDF o immagine. Il riconoscimento gira sul computer con
 [llama.cpp](https://github.com/ggml-org/llama.cpp) e un modello derivato da
-[GLM-OCR](https://huggingface.co/zai-org/GLM-OCR). Non serve un servizio OCR cloud
-né una chiave API per trascrivere.
+[GLM-OCR](https://huggingface.co/zai-org/GLM-OCR), adattato con un fine-tuning
+alla scrittura italiana. Non serve un servizio OCR cloud né una chiave API.
 
 L’interfaccia affianca originale e risultato, permette di controllare le
 correzioni e di esportare il testo. I PDF con testo già presente possono
@@ -59,7 +60,10 @@ procedura completa, i requisiti e la risoluzione dei problemi vedi la
 
 ## Come funziona
 
-![Flusso locale: documento, preparazione della pagina, GLM-OCR su llama.cpp, confronto ed esportazione](docs/assets/workflow.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/pipeline-it-dark.svg">
+  <img alt="Pipeline locale: documento, preparazione della pagina, riconoscimento con GLM-OCR su llama.cpp, verifica ed esportazione. Tutto sul computer dell'utente." src="docs/assets/pipeline-it-light.svg">
+</picture>
 
 La pipeline prepara le pagine, sceglie fra estrazione del testo e OCR, poi
 esegue una cascata di tentativi quando il modello produce un risultato
@@ -70,10 +74,32 @@ Il motore supporta CPU, Vulkan e CUDA quando hardware, driver e pacchetto
 sono compatibili. Il collaudo Windows locale è stato eseguito su AMD Radeon
 RX 7900 XT con Vulkan. Non implica prestazioni equivalenti su ogni GPU.
 
+## Elaborazione locale e dati personali
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/privacy-it-dark.svg">
+  <img alt="Documenti, trascrizioni, archivio, modello e dizionari restano sul computer. Dalla rete arrivano soltanto l'installer e i pesi del modello, una volta sola." src="docs/assets/privacy-it-light.svg">
+</picture>
+
+Le pagine non lasciano il dispositivo. Il motore ascolta solo su `127.0.0.1`,
+non c’è telemetria, non serve un account e, una volta installati applicazione
+e pesi, il riconoscimento funziona senza connessione.
+
+Per chi tratta dati personali questo riduce il perimetro in modo concreto:
+non c’è un responsabile esterno del trattamento per l’OCR, non c’è
+trasferimento verso paesi terzi e i documenti restano sotto il controllo di
+chi li detiene. È la differenza sostanziale rispetto a un OCR cloud.
+
+**Questo non equivale a una certificazione.** La conformità al GDPR resta in
+capo al titolare del trattamento e dipende da base giuridica, informativa,
+tempi di conservazione, sicurezza del dispositivo e gestione dell’archivio
+locale — che ITA-OCR salva nel profilo utente e che la disinstallazione non
+rimuove. Vedi [PRIVACY.md](PRIVACY.md) e [SECURITY.md](SECURITY.md).
+
 ## Modello, dati e limiti
 
 - **Modello base:** GLM-OCR di Z.ai; pesi base dichiarati MIT nella model card upstream.
-- **Adattamento:** fine-tuning per la scrittura italiana, distribuito in GGUF insieme al proiettore visivo compatibile.
+- **Adattamento:** fine-tuning per la scrittura italiana, distribuito in GGUF insieme al proiettore visivo compatibile — [`ueuegio/ITA-OCR`](https://huggingface.co/ueuegio/ITA-OCR).
 - **Dataset:** privato, non incluso nel repository, nel sito, nell’installer o nelle schermate.
 - **Report tecnico:** [*Teaching a Vision Model When to Stop*](docs/assets/ITA-OCR-report-tecnico.pdf) — fine-tuning, collasso della terminazione e cascata di inferenza.
 - **Valutazione:** [metodo e limiti](BENCHMARKS.md); non vengono pubblicati esempi reali, identificatori o risultati per persona.
@@ -82,17 +108,6 @@ RX 7900 XT con Vulkan. Non implica prestazioni equivalenti su ogni GPU.
 La correzione contestuale avanzata richiede risorse lessicali locali aggiuntive
 che non sono incluse nella distribuzione. Il correttore standard funziona
 con i soli dizionari pubblici.
-
-## Privacy
-
-I documenti vengono elaborati sul computer. L’app comunica con il motore
-attraverso l’indirizzo di loopback; non invia le pagine a un servizio OCR remoto.
-Download iniziali, pagine web aperte dall’utente e aggiornamenti dei componenti
-di sistema richiedono eventualmente una connessione. Archivio e log sono locali:
-controllali prima di allegarli a una segnalazione.
-
-Le schermate pubbliche usano esclusivamente dati sintetici. Vedi
-[PRIVACY.md](PRIVACY.md) e [SECURITY.md](SECURITY.md).
 
 ## Sviluppo
 
@@ -110,8 +125,9 @@ ocr-desktop/resources/         dizionari pubblici e relative licenze
 ocr-desktop/scripts/           generazione icone, build e installer
 ocr-desktop/smoke/             prove UI con contenuti sintetici
 ocr-ita/vendor/llama.cpp/      submodule del motore
-docs/                         sito statico, immagini e guide
-licenses/                     avvisi e licenze delle dipendenze
+docs/                          sito statico, immagini e guide
+scripts/                       schemi, schermate e verifica di pubblicazione
+licenses/                      avvisi e licenze delle dipendenze
 ```
 
 Contributi e segnalazioni: [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -131,3 +147,9 @@ Le dipendenze e i dati di terze parti conservano le rispettive licenze:
 in particolare, il dizionario italiano è GPL-3.0 e `spellbook` è MPL-2.0.
 La licenza MIT del progetto non sostituisce quelle dei componenti inclusi.
 Vedi [TERZE-PARTI.md](TERZE-PARTI.md) e [licenses/](licenses/).
+
+## Contatti
+
+Segnalazioni e proposte: [issue del repository](https://github.com/GioOtto/ITA-OCR/issues).
+Per contatto diretto: **giorgio.ottoboni@proton.me**.
+Per le vulnerabilità segui prima [SECURITY.md](SECURITY.md).

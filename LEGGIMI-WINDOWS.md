@@ -1,5 +1,7 @@
 # Compilare ITA-OCR su Windows
 
+*[English version](BUILDING.md)*
+
 ## Prerequisiti
 
 Installa Git, Rust con toolchain MSVC, Visual Studio Build Tools con il
@@ -21,13 +23,13 @@ Per una build Vulkan e CPU senza CUDA:
 powershell -ExecutionPolicy Bypass -File ocr-desktop\scripts\costruisci-windows.ps1 -SaltaCuda
 ```
 
-Il risultato ? `ocr-desktop/dist/ITA-OCR-windows`. Lo script registra la
+Il risultato è `ocr-desktop/dist/ITA-OCR-windows`. Lo script registra la
 costruzione in `ocr-desktop/dist/costruzione-windows-<data>.log`.
 Chiudi l'app prima di sostituire gli eseguibili.
 
 ## Compilare solo l'app
 
-Con motore e risorse gi? disponibili:
+Con motore e risorse già disponibili:
 
 ```powershell
 cd ocr-desktop/app/src-tauri
@@ -37,7 +39,7 @@ cargo test --locked
 
 Copia l'eseguibile nella cartella portabile esistente. Le risorse si trovano
 rispetto all'eseguibile, oppure tramite `OCR_ITA_RESOURCES` e `OCR_ITA_MODELS`.
-Nessun percorso della macchina di sviluppo ? richiesto dall'app.
+Nessun percorso della macchina di sviluppo è richiesto dall'app.
 
 ## Installer
 
@@ -49,7 +51,7 @@ ISCC /DSORGENTE="ocr-desktop\dist\ITA-OCR-windows" /DUSCITA="ocr-desktop\dist" o
 
 Inno richiede percorsi assoluti se il prompt e lo script hanno directory
 base diverse: usa `Resolve-Path` e passa i risultati, senza fissare lettere
-unit? o profili utente negli script.
+unità o profili utente negli script.
 
 L'installer pubblico include applicazione, runtime, dizionari e licenze.
 I pesi GGUF si scaricano separatamente da Hugging Face: [MODELLO.md](docs/MODELLO.md).
@@ -63,9 +65,9 @@ python ocr-desktop/scripts/genera-icone.py
 python ocr-desktop/scripts/genera-icone.py --verifica
 ```
 
-Il logo sorgente ? `ocr-desktop/scripts/marchio/logo.png`. Tutte le risoluzioni
+Il logo sorgente è `ocr-desktop/scripts/marchio/logo.png`. Tutte le risoluzioni
 conservano il marchio completo. Il generatore produce anche la maschera
-`app/ui/marchio.png`, cos? interfaccia e icone restano coerenti.
+`app/ui/marchio.png`, così interfaccia e icone restano coerenti.
 `build.rs` segue le directory delle icone e dell'interfaccia: non serve pulire
 Cargo a ogni modifica. Dopo app e installer:
 
