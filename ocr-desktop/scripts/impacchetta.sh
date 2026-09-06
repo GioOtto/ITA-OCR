@@ -67,12 +67,23 @@ echo "==> modelli"
 # L'app li cerca accanto all'AppImage, nelle risorse o in OCR_ITA_MODELS.
 mkdir -p "$DIST/models"
 for gguf in "$GGUF_LM" "$GGUF_MMPROJ"; do
-  if [ ! -e "$DIST/models/$gguf" ]; then
+  if [ -e "$DIST/models/$gguf" ]; then
+    continue
+  fi
+  if [ -f "$MODELLI_SORGENTE/$gguf" ]; then
     ln "$MODELLI_SORGENTE/$gguf" "$DIST/models/$gguf" 2>/dev/null \
       || cp "$MODELLI_SORGENTE/$gguf" "$DIST/models/$gguf"
+  else
+    echo "    $gguf assente: resta fuori dal pacchetto"
   fi
 done
 if [ "${MODELLI_NEL_PACCHETTO:-0}" = "1" ]; then
+  for gguf in "$GGUF_LM" "$GGUF_MMPROJ"; do
+    [ -f "$DIST/models/$gguf" ] || {
+      echo "MODELLI_NEL_PACCHETTO=1 ma manca $gguf" >&2
+      exit 1
+    }
+  done
   mkdir -p "$RISORSE/models"
   cp "$DIST/models/$GGUF_LM" "$DIST/models/$GGUF_MMPROJ" "$RISORSE/models/"
 fi
