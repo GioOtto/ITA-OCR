@@ -2,21 +2,26 @@
   <img src="docs/assets/logo.png" width="112" height="112" alt="ITA-OCR: un documento tra quattro staffe di scansione" />
   <h1>ITA-OCR</h1>
   <p><strong>OCR per la scrittura italiana, sul tuo computer.</strong></p>
-  <p>App Windows con un fine-tuning di GLM-OCR. Il riconoscimento gira in locale.</p>
+  <p>App per Windows e Linux con un fine-tuning di GLM-OCR. Il riconoscimento gira in locale.</p>
 
   <p>
     <a href="https://GioOtto.github.io/ITA-OCR/"><img alt="Vai al sito: GioOtto.github.io/ITA-OCR" src="https://img.shields.io/badge/Sito-GioOtto.github.io%2FITA--OCR-111111?style=for-the-badge" /></a>
-    <a href="https://github.com/GioOtto/ITA-OCR/releases/latest"><img alt="Scarica per Windows x64" src="https://img.shields.io/badge/Scarica-Windows%20x64-111111?style=for-the-badge" /></a>
+    <a href="https://github.com/GioOtto/ITA-OCR/releases/latest"><img alt="Scarica per Windows x64" src="https://img.shields.io/badge/Scarica-Windows%20x64-111111?style=for-the-badge&logo=windows&logoColor=white" /></a>
+    <a href="https://github.com/GioOtto/ITA-OCR/releases/latest"><img alt="Scarica per Linux, AppImage x86-64" src="https://img.shields.io/badge/Scarica-Linux%20AppImage-111111?style=for-the-badge&logo=linux&logoColor=white" /></a>
   </p>
 
   <p>
-    <a href="docs/it/INSTALLAZIONE.md">Installazione</a> &nbsp;&nbsp;
+    <a href="docs/assets/ITA-OCR-report-tecnico.pdf"><img alt="Leggi il report tecnico: Teaching a Vision Model When to Stop (PDF)" src="https://img.shields.io/badge/Report%20tecnico-Teaching%20a%20Vision%20Model%20When%20to%20Stop%20(PDF)-8B1A1A?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" /></a>
+  </p>
+
+  <p>
+    <a href="docs/it/INSTALLAZIONE.md">Installazione Windows</a> &nbsp;&nbsp;
+    <a href="docs/it/INSTALLAZIONE-LINUX.md">Installazione Linux</a> &nbsp;&nbsp;
     <a href="docs/it/MODELLO.md">Modello</a> &nbsp;&nbsp;
-    <a href="docs/assets/ITA-OCR-report-tecnico.pdf">Report tecnico</a> &nbsp;&nbsp;
-    <a href="docs/it/LEGGIMI-WINDOWS.md">Compilare</a> &nbsp;&nbsp;
+    <a href="docs/it/BENCHMARKS.md">Valutazione</a> &nbsp;&nbsp;
     <a href="https://github.com/GioOtto/ITA-OCR/issues">Segnalazioni</a>
   </p>
-  <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="Codice MIT" src="https://img.shields.io/badge/codice-MIT-181818" /> <img alt="Inferenza locale" src="https://img.shields.io/badge/inferenza-locale-181818" /> <img alt="Nessuna telemetria" src="https://img.shields.io/badge/telemetria-nessuna-181818" /></p>
+  <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="Linux x86-64" src="https://img.shields.io/badge/Linux-x86--64-181818" /> <img alt="Codice MIT" src="https://img.shields.io/badge/codice-MIT-181818" /> <img alt="Inferenza locale" src="https://img.shields.io/badge/inferenza-locale-181818" /> <img alt="Nessuna telemetria" src="https://img.shields.io/badge/telemetria-nessuna-181818" /></p>
   <p><strong>Italiano</strong> &nbsp; <a href="README.en.md">English</a></p>
 </div>
 
@@ -29,8 +34,8 @@
 
 ## Che cos’è
 
-ITA-OCR è un’app desktop per trascrivere pagine scritte a mano in italiano e
-documenti PDF o immagine. Il riconoscimento gira sul computer con
+ITA-OCR è un’app desktop, per Windows e Linux, che trascrive pagine scritte a
+mano in italiano e documenti PDF o immagine. Il riconoscimento gira sul computer con
 [llama.cpp](https://github.com/ggml-org/llama.cpp) e un modello derivato da
 [GLM-OCR](https://huggingface.co/zai-org/GLM-OCR), adattato con un fine-tuning
 alla scrittura italiana. Non serve un servizio OCR cloud né una chiave API.
@@ -44,7 +49,9 @@ essere letti direttamente, senza passare dal modello.
 Il modo più rapido è il sito: **<https://GioOtto.github.io/ITA-OCR/>**,
 che ha il download, le schermate e i risultati in una pagina sola.
 
-1. Scarica **ITA-OCR-setup_v1.0.0.exe** dalla [release Windows](https://github.com/GioOtto/ITA-OCR/releases/latest).
+### Windows
+
+1. Scarica **ITA-OCR-setup_v1.0.0.exe** dalla [release](https://github.com/GioOtto/ITA-OCR/releases/latest).
 2. Installalo nel tuo profilo utente: non richiede privilegi di amministratore.
 3. Tieni l’installazione completa, quella predefinita: comprende già i modelli.
 4. Apri ITA-OCR, importa un documento, avvia la trascrizione e confrontala con l’originale.
@@ -53,13 +60,26 @@ L’installazione completa contiene tutto quello che serve — applicazione, mot
 runtime, dizionari pubblici e i due pesi GGUF — e non richiede altri download.
 Durante il setup puoi scegliere un’installazione **senza i modelli**, più
 leggera: in quel caso i pesi si prendono
-[su Hugging Face](https://huggingface.co/ueuegio/ITA-OCR), come per la cartella
-portabile o per tenerli su un altro disco con `OCR_ITA_MODELS`.
-**Il dataset di addestramento resta privato.** Per la procedura completa, i
-requisiti e la risoluzione dei problemi vedi la
-[guida Windows](docs/it/INSTALLAZIONE.md).
+[su Hugging Face](https://huggingface.co/ueuegio/ITA-OCR).
+Procedura completa: [guida Windows](docs/it/INSTALLAZIONE.md).
 
-## Windows segnalerà l'installer
+### Linux
+
+1. Scarica **ITA-OCR-v1.0.0-x86_64.AppImage** dalla [release](https://github.com/GioOtto/ITA-OCR/releases/latest).
+2. `chmod +x ITA-OCR-v1.0.0-x86_64.AppImage`
+3. Prendi i due pesi GGUF [su Hugging Face](https://huggingface.co/ueuegio/ITA-OCR)
+   e mettili in una cartella `models` accanto all’AppImage.
+4. Avvia il file. Non si installa niente: per rimuoverla, si cancella.
+
+L’AppImage porta con sé applicazione, motore, backend CPU e Vulkan, PDFium e i
+dizionari pubblici; **i modelli restano fuori**, perché 1,3 GB in più
+sforerebbero il limite di GitHub per un allegato di release. Servono GTK 3,
+WebKitGTK 4.1 e libsoup 3 dalla distribuzione, e glibc 2.39 o successiva.
+Procedura completa e problemi noti: [guida Linux](docs/it/INSTALLAZIONE-LINUX.md).
+
+**Il dataset di addestramento resta privato**, su entrambe le piattaforme.
+
+## Windows segnalerà l'installer (solo su Windows)
 
 Il pacchetto non è firmato con un certificato Authenticode. Al primo avvio
 SmartScreen mostra **«Windows ha protetto il PC»**, e qualche antivirus può
@@ -106,8 +126,10 @@ incompleto o ripetitivo. La correzione lessicale e l’esportazione avvengono
 localmente. Tauri collega l’interfaccia HTML/CSS/JavaScript al backend Rust.
 
 Il motore supporta CPU, Vulkan e CUDA quando hardware, driver e pacchetto
-sono compatibili. Il collaudo Windows locale è stato eseguito su AMD Radeon
-RX 7900 XT con Vulkan. Non implica prestazioni equivalenti su ogni GPU.
+sono compatibili. Il collaudo locale è stato eseguito su AMD Radeon RX 7900 XT
+con Vulkan, su Windows e su Linux. Non implica prestazioni equivalenti su ogni
+GPU. L’AppImage pubblicata porta i backend CPU e Vulkan; CUDA va compilato
+sulla macchina che lo userà, perché `nvcc` non cross-compila.
 
 ## Quanto migliora rispetto al modello base
 
@@ -134,6 +156,26 @@ Le percentuali sono riduzioni relative su quegli insiemi, non una percentuale
 universale di accuratezza. Il set finale è stato consultato più volte durante lo
 sviluppo: le misure sono descrittive, non un benchmark indipendente. Metodo
 completo e limiti in [BENCHMARKS.md](docs/it/BENCHMARKS.md).
+
+## 📄 Il report tecnico
+
+> ### [**Teaching a Vision Model When to Stop**](docs/assets/ITA-OCR-report-tecnico.pdf)
+>
+> Come si insegna a un modello di visione a smettere di generare — il problema
+> che sta dietro a tutti i numeri qui sopra.
+>
+> GLM-OCR ha **due** condizioni di arresto, e il fine-tuning ne rompe una: il
+> modello impara la scrittura italiana e insieme dimentica quando fermarsi,
+> così una pagina su tre finisce in un ciclo che si esaurisce solo al limite
+> di token. Il report racconta perché succede, perché non si risolve in
+> addestramento, e come la **cascata di inferenza** lo aggira riconoscendo una
+> decodifica finita male e ritentando — portando le pagine perse da 24 a 5.
+>
+> Dentro ci sono anche la costruzione del corpus, il protocollo di
+> valutazione con scriventi disgiunti, la quantizzazione e i limiti di tutto
+> quanto.
+>
+> **[→ Leggi il report tecnico (PDF)](docs/assets/ITA-OCR-report-tecnico.pdf)**
 
 ## Serve una GPU?
 
@@ -186,24 +228,28 @@ con i soli dizionari pubblici.
 
 ## Sviluppo
 
-```powershell
+```bash
 git clone --recurse-submodules https://github.com/GioOtto/ITA-OCR.git
 cd ITA-OCR
 ```
 
-Segui [LEGGIMI-WINDOWS.md](docs/it/LEGGIMI-WINDOWS.md) per toolchain e build.
+Poi [LEGGIMI-WINDOWS.md](docs/it/LEGGIMI-WINDOWS.md) oppure
+[LEGGIMI-LINUX.md](docs/it/LEGGIMI-LINUX.md) per toolchain e build. Su Linux
+sono tre comandi: `prepara.sh` procura le dipendenze binarie, `costruisci.sh`
+compila motore e applicazione, `impacchetta.sh` monta l’AppImage. Entrambe le
+piattaforme hanno anche un workflow in [.github/workflows/](.github/workflows).
 
 ```text
 docs/                       sito statico: index.html, en/index.html, assets/
 docs/it/                    guide in italiano
 docs/en/                    guide in inglese
-.github/                    contribuire, sicurezza e workflow di build
+.github/workflows/          build di Windows e di Linux
 ocr-desktop/app/src-tauri/  backend Rust e configurazione Tauri
 ocr-desktop/app/ui/         interfaccia e asset
 ocr-desktop/resources/      dizionari pubblici e relative licenze
-ocr-desktop/scripts/        generazione icone, build e installer
+ocr-desktop/scripts/        icone, build, impacchettamento e installer
 ocr-desktop/smoke/          prove UI con contenuti sintetici
-ocr-ita/vendor/llama.cpp/   submodule del motore
+ocr-ita/vendor/             submodule: llama.cpp e Vulkan-Headers
 scripts/                    schemi, schermate e verifica di pubblicazione
 licenses/                   avvisi e licenze delle dipendenze
 ```

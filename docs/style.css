@@ -177,6 +177,8 @@ figcaption { font-size: 13px; line-height: 1.6; margin-top: 18px; text-align: ce
 .download-card > h3 { font-size: 22px; margin-bottom: 16px; }
 .download-card > p { color: var(--tenue); font-size: 15px; margin-bottom: 28px; }
 .download-card .button { align-self: flex-start; }
+/* I pesi non sono una piattaforma: stanno sotto le due, per intero. */
+.download-card.larga { grid-column: 1 / -1; }
 .download-links { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 26px; }
 .download-links a { font-size: 14px; color: var(--chiaro); border-bottom: 1px solid var(--linea); padding-bottom: 2px; }
 .download-links a:hover { color: var(--testo); }
