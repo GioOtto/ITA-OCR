@@ -29,6 +29,14 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 120
 
+    env:
+      # Una sola verita' su CUDA per tutto il job. Serve perche' su un push di
+      # tag `inputs.con_cuda` non esiste: prima l'installazione la leggeva come
+      # "falso" e saltava il Toolkit, mentre la compilazione la leggeva come
+      # "non falso" e chiamava nvcc, che a quel punto non c'era.
+      # Da un tag si compila tutto; dalla casella decide chi lancia.
+      CON_CUDA: ${{ github.event_name != 'workflow_dispatch' || inputs.con_cuda }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -45,7 +53,7 @@ jobs:
           workspaces: ocr-desktop/app/src-tauri
 
       - name: CUDA Toolkit
-        if: inputs.con_cuda != false
+        if: env.CON_CUDA == 'true'
         uses: Jimver/cuda-toolkit@v0.2.19
         with:
           cuda: "12.6.0"
@@ -70,7 +78,7 @@ jobs:
       - name: Compila llama.cpp
         shell: pwsh
         run: |
-          $cuda = if ("${{ inputs.con_cuda }}" -eq "false") { "OFF" } else { "ON" }
+          $cuda = if ("${{ env.CON_CUDA }}" -eq "true") { "ON" } else { "OFF" }
           Write-Host "CUDA: $cuda"
           $extra = @()
           if ($cuda -eq "ON") {
