@@ -67,8 +67,8 @@ Q5_K_M and Q4_K_M show a small but systematic degradation.
 On the CPU the quality does not change, the time does. On the test machine a
 page goes from a little over a second and a half on the GPU to roughly fifteen
 seconds on the CPU, and most of that time goes into encoding the image rather
-than generating the text. **The absolute values depend on the machine** —
-processor, graphics card, drivers, page complexity — and should be read as a
+than generating the text. **The absolute values depend on the machine** (processor,
+graphics card, drivers, page complexity) and should be read as a
 ratio, not as guaranteed performance. On the CPU, quantisation buys memory
 rather than latency: around 2.4 GB resident with Q8_0. The lever for latency
 would be the resolution of the page, not the precision of the weights.

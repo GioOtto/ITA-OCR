@@ -114,7 +114,7 @@ Nessuna delle due cose è necessaria per usare l'applicazione.
 
 ## Problemi comuni
 
-**`cannot open shared object file: libwebkit2gtk-4.1.so.0`** — mancano le
+**`cannot open shared object file: libwebkit2gtk-4.1.so.0`.** Mancano le
 librerie dell'interfaccia. Su Debian e Ubuntu:
 
 ```bash
@@ -124,7 +124,7 @@ sudo apt install libwebkit2gtk-4.1-0 libgtk-3-0 libsoup-3.0-0
 Su Fedora: `sudo dnf install webkit2gtk4.1 gtk3 libsoup3`. Su Arch:
 `sudo pacman -S webkit2gtk-4.1 gtk3 libsoup3`.
 
-**`dlopen(): error loading libfuse.so.2`** — il sistema non ha più FUSE 2.
+**`dlopen(): error loading libfuse.so.2`.** Il sistema non ha più FUSE 2.
 L'AppImage è costruita con il runtime type2, che non dovrebbe richiederlo; se
 succede lo stesso, si può sempre eseguire senza montarla:
 
@@ -132,7 +132,7 @@ succede lo stesso, si può sempre eseguire senza montarla:
 ./ITA-OCR-v1.0.0-x86_64.AppImage --appimage-extract-and-run
 ```
 
-**Modello non trovato** — i due GGUF non sono in `models` accanto all'AppImage,
+**Modello non trovato.** I due GGUF non sono in `models` accanto all'AppImage,
 oppure hanno nomi diversi da quelli attesi. Controlla
 [MODELLO.md](MODELLO.md), o punta `OCR_ITA_MODELS` alla cartella giusta:
 
@@ -140,17 +140,17 @@ oppure hanno nomi diversi da quelli attesi. Controlla
 OCR_ITA_MODELS=/percorso/ai/pesi ./ITA-OCR-v1.0.0-x86_64.AppImage
 ```
 
-**GPU non usata** — l'app mostra il backend in uso. Vulkan richiede driver
+**GPU non usata.** L'app mostra il backend in uso. Vulkan richiede driver
 funzionanti: verifica con `vulkaninfo --summary` che il sistema veda la scheda.
 L'AppImage pubblicata include i backend CPU e Vulkan; **non include CUDA**,
 perché va compilato sulla macchina che ha il toolkit NVIDIA. Chi ha una GPU
 NVIDIA e vuole CUDA se la compila seguendo
 [LEGGIMI-LINUX.md](LEGGIMI-LINUX.md): lo script lo abilita da solo se trova `nvcc`.
 
-**Wayland** — la finestra gira attraverso il livello di compatibilità X11. Se
+**Wayland.** La finestra gira attraverso il livello di compatibilità X11. Se
 incontri problemi di ridimensionamento o di input, prova a forzare X11 con
 `GDK_BACKEND=x11`.
 
-**Correzione contestuale** — richiede risorse lessicali locali opzionali che non
+**Correzione contestuale.** Richiede risorse lessicali locali opzionali che non
 fanno parte della distribuzione. Il correttore standard funziona con i soli
 dizionari pubblici inclusi.

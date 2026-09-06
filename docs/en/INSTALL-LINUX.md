@@ -78,7 +78,7 @@ the user profile, following the XDG conventions:
 If `XDG_DATA_HOME` or `XDG_CONFIG_HOME` are set, the app honours them.
 
 Deleting the AppImage does not remove those folders: remove them by hand to
-leave no trace. Check the logs before sharing them — they can contain paths
+leave no trace. Check the logs before sharing them: they can contain paths
 and fragments of document text.
 
 ## Adding it to the application menu
@@ -112,7 +112,7 @@ Neither step is required to use the application.
 
 ## Common problems
 
-**`cannot open shared object file: libwebkit2gtk-4.1.so.0`** — the interface
+**`cannot open shared object file: libwebkit2gtk-4.1.so.0`.** The interface
 libraries are missing. On Debian and Ubuntu:
 
 ```bash
@@ -122,7 +122,7 @@ sudo apt install libwebkit2gtk-4.1-0 libgtk-3-0 libsoup-3.0-0
 On Fedora: `sudo dnf install webkit2gtk4.1 gtk3 libsoup3`. On Arch:
 `sudo pacman -S webkit2gtk-4.1 gtk3 libsoup3`.
 
-**`dlopen(): error loading libfuse.so.2`** — the system no longer ships FUSE 2.
+**`dlopen(): error loading libfuse.so.2`.** The system no longer ships FUSE 2.
 The AppImage is built with the type2 runtime, which should not need it; if it
 happens anyway, you can always run without mounting:
 
@@ -130,7 +130,7 @@ happens anyway, you can always run without mounting:
 ./ITA-OCR-v1.0.0-x86_64.AppImage --appimage-extract-and-run
 ```
 
-**Model not found** — the two GGUF files are not in `models` next to the
+**Model not found.** The two GGUF files are not in `models` next to the
 AppImage, or their names differ from the expected ones. Check
 [MODEL.md](MODEL.md), or point `OCR_ITA_MODELS` at the right folder:
 
@@ -138,7 +138,7 @@ AppImage, or their names differ from the expected ones. Check
 OCR_ITA_MODELS=/path/to/weights ./ITA-OCR-v1.0.0-x86_64.AppImage
 ```
 
-**GPU not used** — the app shows the backend in use. Vulkan needs working
+**GPU not used.** The app shows the backend in use. Vulkan needs working
 drivers: check with `vulkaninfo --summary` that the system sees the card.
 The published AppImage ships the CPU and Vulkan backends; it **does not ship
 CUDA**, which has to be compiled on a machine with the NVIDIA toolkit. If you
@@ -146,9 +146,9 @@ have an NVIDIA GPU and want CUDA, build it yourself following
 [BUILDING-LINUX.md](BUILDING-LINUX.md): the script enables it by itself when
 it finds `nvcc`.
 
-**Wayland** — the window runs through the X11 compatibility layer. If you hit
+**Wayland.** The window runs through the X11 compatibility layer. If you hit
 resizing or input problems, try forcing X11 with `GDK_BACKEND=x11`.
 
-**Contextual correction** — requires optional local lexical resources that are
+**Contextual correction.** Requires optional local lexical resources that are
 not part of the distribution. The standard corrector works with the public
 dictionaries that are included.

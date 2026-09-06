@@ -40,7 +40,7 @@ ITA-OCR\
 Con l'installer standard la cartella è
 `%LOCALAPPDATA%\Programs\ITA-OCR\models`.
 
-Per tenerli altrove — su un altro disco, o condivisi fra installazioni — imposta
+Per tenerli altrove, su un altro disco o condivisi fra installazioni, imposta
 la variabile d'ambiente `OCR_ITA_MODELS` sulla cartella che li contiene.
 
 ## Come scaricarli

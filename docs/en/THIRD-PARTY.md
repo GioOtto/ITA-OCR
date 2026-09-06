@@ -25,7 +25,7 @@ respective parts. Full texts are in [licenses/](../../licenses).
 
 ## Model
 
-**GLM-OCR** — Z.ai / zai-org. The weights on the Hugging Face repository are
+**GLM-OCR**: Z.ai / zai-org. The weights on the Hugging Face repository are
 declared MIT; the GitHub repository code is Apache-2.0. The Italian-handwriting
 fine-tune distributed by ITA-OCR is a derivative of those weights and keeps the
 MIT licence.
@@ -37,24 +37,24 @@ references to GLM-OCR in the documentation are descriptive of origin.
 
 ## Engine and shell
 
-**llama.cpp** — MIT, copyright the ggml authors. Included as a submodule under
+**llama.cpp**: MIT, copyright the ggml authors. Included as a submodule under
 `ocr-ita/vendor/llama.cpp`; the `llama-server` binaries and the backend
 libraries are redistributed in the Windows package. Text in
 [licenses/llama.cpp-MIT.txt](../../licenses/llama.cpp-MIT.txt).
 
-**Tauri**, with WRY and TAO — MIT or Apache-2.0, at the redistributor's choice.
+**Tauri**, with WRY and TAO: MIT or Apache-2.0, at the redistributor's choice.
 Compiled into the executable.
 
-**PDFium** — BSD-3-Clause, copyright The PDFium Authors and Google.
+**PDFium**: BSD-3-Clause, copyright The PDFium Authors and Google.
 Redistributed as `pdfium.dll`, from the
 [bblanchon/pdfium-binaries](https://github.com/bblanchon/pdfium-binaries)
 builds. Text in [licenses/PDFium-BSD-3-Clause.txt](../../licenses/PDFium-BSD-3-Clause.txt).
 
-**KaTeX** — MIT, copyright Khan Academy. Included under
+**KaTeX**: MIT, copyright Khan Academy. Included under
 `ocr-desktop/app/ui/vendor/katex` with its fonts. Text in
 [licenses/KaTeX-LICENSE.txt](../../licenses/KaTeX-LICENSE.txt).
 
-**spellbook** — MPL-2.0. It is a Rust library, so its code is statically linked
+**spellbook**: MPL-2.0. It is a Rust library, so its code is statically linked
 into the executable. MPL-2.0 §3.2 allows distributing the executable under a
 different licence provided the library's source stays available and the notices
 are not removed: the source is public at the address above and the licence text
@@ -62,10 +62,10 @@ is in [licenses/spellbook-MPL-2.0.txt](../../licenses/spellbook-MPL-2.0.txt).
 
 ## Dictionaries
 
-**Italian — `resources/dictionaries/it_IT`, GPL-3 licence.**
+**Italian: `resources/dictionaries/it_IT`, GPL-3 licence.**
 
 Copyright (C) 2001-2003 Gianluca Turconi; 2002-2007 Davide Prina;
-2010-2015 Andrea Pescetti; 2020-2022 LibreItalia — Marina Latini.
+2010-2015 Andrea Pescetti; 2020-2022 LibreItalia, Marina Latini.
 Part of the "Estensione linguistica italiana / Italian Writing Aids extension",
 distributed with the `libreoffice-dictionaries`.
 
@@ -76,7 +76,7 @@ README and the full licence text in `LICENSE-GPL-3.txt`. Anyone redistributing
 ITA-OCR must keep those files and their copyright notices: the MIT-licensed
 application code and the GPL-3 dictionary travel together without merging.
 
-**English — `resources/dictionaries/en_US`, SCOWL.**
+**English: `resources/dictionaries/en_US`, SCOWL.**
 
 Derived from SCOWL (Kevin Atkinson and contributors), with permissive
 redistribution terms stated in `README_en_US.txt`. It is used only to recognise

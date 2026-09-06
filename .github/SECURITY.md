@@ -25,7 +25,7 @@ Riceve correzioni soltanto l’ultima release pubblicata.
 
 Rientrano nel perimetro l’applicazione desktop, gli script di costruzione e
 dell’installer e il sito statico in `docs/`. Restano fuori le vulnerabilità dei
-progetti a monte — llama.cpp, Tauri, PDFium, i dizionari — che vanno segnalate
+progetti a monte (llama.cpp, Tauri, PDFium, i dizionari), che vanno segnalate
 ai rispettivi progetti, e i modelli GLM-OCR a monte.
 
 ### Note sul modello di minaccia
@@ -62,8 +62,8 @@ Only the latest published release receives fixes.
 ### Scope
 
 In scope: the desktop application, the build and installer scripts, and the
-static website in `docs/`. Out of scope: vulnerabilities in upstream projects —
-llama.cpp, Tauri, PDFium, the dictionaries — which should be reported to those
+static website in `docs/`. Out of scope: vulnerabilities in upstream projects
+(llama.cpp, Tauri, PDFium, the dictionaries), which should be reported to those
 projects, and the upstream GLM-OCR models.
 
 ### Threat-model notes

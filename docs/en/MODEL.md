@@ -41,7 +41,7 @@ ITA-OCR\
 With the standard installer that folder is
 `%LOCALAPPDATA%\Programs\ITA-OCR\models`.
 
-To keep them elsewhere — on another drive, or shared between installations —
+To keep them elsewhere, on another drive or shared between installations,
 set the `OCR_ITA_MODELS` environment variable to the folder holding them.
 
 ## How to download them

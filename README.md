@@ -56,8 +56,8 @@ che ha il download, le schermate e i risultati in una pagina sola.
 3. Tieni l’installazione completa, quella predefinita: comprende già i modelli.
 4. Apri ITA-OCR, importa un documento, avvia la trascrizione e confrontala con l’originale.
 
-L’installazione completa contiene tutto quello che serve — applicazione, motore,
-runtime, dizionari pubblici e i due pesi GGUF — e non richiede altri download.
+L’installazione completa contiene tutto quello che serve (applicazione, motore,
+runtime, dizionari pubblici e i due pesi GGUF) e non richiede altri download.
 Durante il setup puoi scegliere un’installazione **senza i modelli**, più
 leggera: in quel caso i pesi si prendono
 [su Hugging Face](https://huggingface.co/ueuegio/ITA-OCR).
@@ -136,7 +136,7 @@ sulla macchina che lo userà, perché `nvcc` non cross-compila.
 Il fine-tuning riduce l’errore su tutti gli insiemi di valutazione disponibili,
 su entrambi gli assi. Le cifre sono quelle del
 [report tecnico](docs/assets/ITA-OCR-report-tecnico.pdf), con l’insieme su cui
-sono state misurate — perché una percentuale senza il suo insieme non vuole
+sono state misurate: una percentuale senza il suo insieme non vuole
 dire niente.
 
 | Insieme di valutazione | Errore sui caratteri | Errore sulle parole |
@@ -161,7 +161,7 @@ completo e limiti in [BENCHMARKS.md](docs/it/BENCHMARKS.md).
 
 > ### [**Teaching a Vision Model When to Stop**](docs/assets/ITA-OCR-report-tecnico.pdf)
 >
-> Come si insegna a un modello di visione a smettere di generare — il problema
+> Come si insegna a un modello di visione a smettere di generare: il problema
 > che sta dietro a tutti i numeri qui sopra.
 >
 > GLM-OCR ha **due** condizioni di arresto, e il fine-tuning ne rompe una: il
@@ -169,7 +169,7 @@ completo e limiti in [BENCHMARKS.md](docs/it/BENCHMARKS.md).
 > così una pagina su tre finisce in un ciclo che si esaurisce solo al limite
 > di token. Il report racconta perché succede, perché non si risolve in
 > addestramento, e come la **cascata di inferenza** lo aggira riconoscendo una
-> decodifica finita male e ritentando — portando le pagine perse da 24 a 5.
+> decodifica finita male e ritentando, che porta le pagine perse da 24 a 5.
 >
 > Dentro ci sono anche la costruzione del corpus, il protocollo di
 > valutazione con scriventi disgiunti, la quantizzazione e i limiti di tutto
@@ -182,7 +182,7 @@ completo e limiti in [BENCHMARKS.md](docs/it/BENCHMARKS.md).
 No. Il modello gira anche su CPU, ed è la stessa qualità: cambia solo il tempo.
 
 Sulla macchina di collaudo una pagina passa da poco più di un secondo e mezzo
-su GPU a una quindicina di secondi su CPU — circa un ordine di grandezza. I
+su GPU a una quindicina di secondi su CPU, circa un ordine di grandezza. I
 valori assoluti dipendono da processore, scheda video, driver e complessità
 della pagina, quindi vanno presi come rapporto e non come promessa: su un’altra
 macchina saranno altri numeri, con lo stesso divario.
@@ -210,15 +210,15 @@ chi li detiene. È la differenza sostanziale rispetto a un OCR cloud.
 **Questo non equivale a una certificazione.** La conformità al GDPR resta in
 capo al titolare del trattamento e dipende da base giuridica, informativa,
 tempi di conservazione, sicurezza del dispositivo e gestione dell’archivio
-locale — che ITA-OCR salva nel profilo utente e che la disinstallazione non
+locale, che ITA-OCR salva nel profilo utente e che la disinstallazione non
 rimuove. Vedi [PRIVACY.md](docs/it/PRIVACY.md) e [SECURITY.md](.github/SECURITY.md).
 
 ## Modello, dati e limiti
 
 - **Modello base:** GLM-OCR di Z.ai; pesi base dichiarati MIT nella model card upstream.
-- **Adattamento:** fine-tuning per la scrittura italiana, distribuito in GGUF insieme al proiettore visivo compatibile — [`ueuegio/ITA-OCR`](https://huggingface.co/ueuegio/ITA-OCR).
+- **Adattamento:** fine-tuning per la scrittura italiana, distribuito in GGUF insieme al proiettore visivo compatibile, su [`ueuegio/ITA-OCR`](https://huggingface.co/ueuegio/ITA-OCR).
 - **Dataset:** privato, non incluso nel repository, nel sito, nell’installer o nelle schermate.
-- **Report tecnico:** [*Teaching a Vision Model When to Stop*](docs/assets/ITA-OCR-report-tecnico.pdf) — fine-tuning, collasso della terminazione e cascata di inferenza.
+- **Report tecnico:** [*Teaching a Vision Model When to Stop*](docs/assets/ITA-OCR-report-tecnico.pdf). Tratta il fine-tuning, il collasso della terminazione e la cascata di inferenza.
 - **Valutazione:** [metodo e limiti](docs/it/BENCHMARKS.md); non vengono pubblicati esempi reali, identificatori o risultati per persona.
 - **Accuratezza:** l’OCR può omettere, ripetere o inventare testo, soprattutto con pagine complesse, formule o scrittura difficile. Verifica ogni risultato sull’originale.
 

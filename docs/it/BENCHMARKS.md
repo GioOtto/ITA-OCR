@@ -69,7 +69,7 @@ Su CPU la qualità non cambia, cambia il tempo. Sulla macchina di collaudo una
 pagina passa da poco più di un secondo e mezzo su GPU a una quindicina di
 secondi su CPU, e la maggior parte di quel tempo se ne va nella codifica
 dell'immagine, non nella generazione del testo. **I valori assoluti dipendono
-dalla macchina** — processore, scheda video, driver, complessità della pagina —
+dalla macchina** (processore, scheda video, driver, complessità della pagina)
 e vanno letti come rapporto, non come prestazione garantita. Su CPU la
 quantizzazione fa risparmiare memoria più che tempo: circa 2,4 GB residenti con
 Q8_0. La leva sulla latenza sarebbe la risoluzione della pagina, non la

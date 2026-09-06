@@ -56,8 +56,8 @@ which has the download, the screenshots and the results on a single page.
 3. Keep the complete installation, the default one: it already includes the models.
 4. Open ITA-OCR, import a document, run the transcription and compare it with the original.
 
-The complete installation ships everything you need — application, engine,
-runtime, public dictionaries and both GGUF weights — and asks for no further
+The complete installation ships everything you need (application, engine,
+runtime, public dictionaries and both GGUF weights) and asks for no further
 download. During setup you can pick a lighter installation **without the
 models**: in that case the weights come
 [from Hugging Face](https://huggingface.co/ueuegio/ITA-OCR).
@@ -135,7 +135,7 @@ cross-compile.
 
 The fine-tune lowers the error on every evaluation set available, on both axes.
 The figures come from the [technical report](docs/assets/ITA-OCR-report-tecnico.pdf),
-each with the set it was measured on — because a percentage without its set
+each with the set it was measured on, because a percentage without its set
 means nothing.
 
 | Evaluation set | Character error | Word error |
@@ -160,7 +160,7 @@ are descriptive, not an independent benchmark. Full method and limits in
 
 > ### [**Teaching a Vision Model When to Stop**](docs/assets/ITA-OCR-report-tecnico.pdf)
 >
-> How you teach a vision model to stop generating — the problem behind every
+> How you teach a vision model to stop generating: the problem behind every
 > number above.
 >
 > GLM-OCR has **two** stopping conditions, and fine-tuning breaks one of them:
@@ -168,7 +168,7 @@ are descriptive, not an independent benchmark. Full method and limits in
 > three ends in a loop that only exhausts itself at the token limit. The report
 > covers why this happens, why it cannot be fixed in training, and how the
 > **inference cascade** works around it by recognising a decode that has gone
-> wrong and retrying — taking lost pages from 24 down to 5.
+> wrong and retrying, which takes lost pages from 24 down to 5.
 >
 > It also covers the construction of the corpus, the evaluation protocol with
 > disjoint writers, quantisation, and the limits of all of it.
@@ -180,7 +180,7 @@ are descriptive, not an independent benchmark. Full method and limits in
 No. The model also runs on the CPU, at the same quality: only the time changes.
 
 On the test machine a page goes from a little over a second and a half on the
-GPU to roughly fifteen seconds on the CPU — about an order of magnitude. The
+GPU to roughly fifteen seconds on the CPU, about an order of magnitude. The
 absolute values depend on the processor, the graphics card, the drivers and the
 complexity of the page, so read them as a ratio rather than a promise: another
 machine will produce other numbers with the same gap.
@@ -207,16 +207,16 @@ is the substantive difference from a cloud OCR service.
 
 **This is not a certification.** GDPR compliance remains the responsibility of
 the data controller and depends on the legal basis, the privacy notice,
-retention periods, device security and the handling of the local history —
+retention periods, device security and the handling of the local history,
 which ITA-OCR stores in the user profile and which uninstalling does not
 remove. See [PRIVACY.md](docs/en/PRIVACY.md) and [SECURITY.md](.github/SECURITY.md).
 
 ## Model, data and limits
 
 - **Base model:** GLM-OCR by Z.ai; the upstream model card declares the base weights MIT.
-- **Adaptation:** fine-tuned for Italian handwriting, distributed in GGUF together with the matching vision projector — [`ueuegio/ITA-OCR`](https://huggingface.co/ueuegio/ITA-OCR).
+- **Adaptation:** fine-tuned for Italian handwriting, distributed in GGUF together with the matching vision projector, on [`ueuegio/ITA-OCR`](https://huggingface.co/ueuegio/ITA-OCR).
 - **Dataset:** private. It is not part of the repository, the website, the installer or the screenshots.
-- **Technical report:** [*Teaching a Vision Model When to Stop*](docs/assets/ITA-OCR-report-tecnico.pdf) — the fine-tune, the termination collapse and the inference cascade.
+- **Technical report:** [*Teaching a Vision Model When to Stop*](docs/assets/ITA-OCR-report-tecnico.pdf). It covers the fine-tune, the termination collapse and the inference cascade.
 - **Evaluation:** [method and limits](docs/en/BENCHMARKS.md); no real examples, identifiers or per-person results are published.
 - **Accuracy:** OCR can omit, repeat or invent text, especially on complex layouts, formulas or difficult handwriting. Always check the result against the original.
 

@@ -1,8 +1,8 @@
 //! Modalita' di verifica senza interfaccia: `ocr-ita-desktop --prova <file>`.
 //!
-//! Esercita esattamente la pipeline che usa la finestra — riconoscimento del
+//! Esercita esattamente la pipeline che usa la finestra: riconoscimento del
 //! documento, fast path sul text layer, canvas 960x1248, cascata condizionale in
-//! streaming, chiusura del motore — ma scrive su stdout invece che sulla
+//! streaming, chiusura del motore, ma scrive su stdout invece che sulla
 //! webview. Serve agli smoke test e a capire un problema senza aprire la GUI.
 
 use crate::motore::{Backend, Motore};

@@ -1388,7 +1388,7 @@ async function aggiornaDiagnostica() {
         const passo = document.createElement("div");
         passo.className = "riga-tempo passo";
         const nome = document.createElement("span");
-        nome.textContent = `↳ ${t.stadio} — ${t.esito}`;
+        nome.textContent = `↳ ${t.stadio}: ${t.esito}`;
         const misure = document.createElement("span");
         misure.textContent = `${t.secondi.toFixed(2)} s · ${t.token} token${
           t.token_al_secondo ? ` · ${t.token_al_secondo.toFixed(0)} tok/s` : ""

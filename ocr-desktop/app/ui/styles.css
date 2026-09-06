@@ -1,4 +1,4 @@
-/* ITA-OCR 1.0.0 — superfici neutre, accento blu, comandi in evidenza. */
+/* ITA-OCR 1.0.0: superfici neutre, accento blu, comandi in evidenza. */
 :root {
   color-scheme: light dark;
   --fondo: light-dark(#f7f7f8, #0f0f0f);
@@ -18,7 +18,7 @@
   --riga-viva: light-dark(#00000014, #ffffff17);
   /* L'accento e' inchiostro, non un colore: il comando principale e' una
      macchia scura sulla carta (chiara sul buio). Cosi' gli unici colori
-     rimasti dicono uno stato — verde riuscito, ambra parziale, rosso errore. */
+     rimasti dicono uno stato: verde riuscito, ambra parziale, rosso errore. */
   --accento: light-dark(#1f2023, #ececec);
   --accento-vivo: light-dark(#000000, #ffffff);
   --accento-testo: light-dark(#ffffff, #171717);

@@ -96,7 +96,7 @@ I due GGUF **restano fuori**: pesano 1,3 GB e l'AppImage sarebbe oltre il
 limite di GitHub per un allegato di release. `impacchetta.sh` li collega in
 `ocr-desktop/dist/models/` se li trova in `ocr-ita/models/gguf/`, così
 l'AppImage li vede accanto a sé durante le prove. Per includerli davvero nel
-pacchetto — utile per una chiavetta, non per una release:
+pacchetto, utile per una chiavetta ma non per una release:
 
 ```bash
 MODELLI_NEL_PACCHETTO=1 bash ocr-desktop/scripts/impacchetta.sh

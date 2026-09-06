@@ -96,7 +96,7 @@ The two GGUF files **stay out**: they weigh 1.3 GB and the AppImage would be
 over GitHub's limit for a release asset. `impacchetta.sh` links them into
 `ocr-desktop/dist/models/` when it finds them in `ocr-ita/models/gguf/`, so the
 AppImage sees them next to itself while testing. To really include them in the
-package — useful for a USB stick, not for a release:
+package, useful for a USB stick but not for a release:
 
 ```bash
 MODELLI_NEL_PACCHETTO=1 bash ocr-desktop/scripts/impacchetta.sh
