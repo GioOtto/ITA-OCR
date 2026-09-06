@@ -51,9 +51,11 @@ fi
 # collega il target SPIRV-Headers::SPIRV-Headers: si limita a find_package.
 # Con il Vulkan SDK non si nota, perche' tiene spirv/ nella stessa include di
 # vulkan/ e quella arriva da Vulkan::Vulkan. Prendendo le intestazioni dai .deb
-# stanno altrove, e la directory va passata al compilatore a mano.
+# estratti stanno altrove, e la directory va passata al compilatore a mano.
+# /usr/include invece e' gia' nel percorso standard: aggiungerla con -isystem
+# rompe gli include_next della libreria C++ di GCC, fra cui quello di stdlib.h.
 if [ -z "${SPIRV_HEADERS_INCLUDE:-}" ]; then
-  for c in "$VULKAN_TP/usr/include" "$VULKAN_HEADERS" /usr/include; do
+  for c in "$VULKAN_TP/usr/include" "$VULKAN_HEADERS"; do
     if [ -f "$c/spirv/unified1/spirv.hpp" ]; then
       SPIRV_HEADERS_INCLUDE="$c"
       export SPIRV_HEADERS_INCLUDE
