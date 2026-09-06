@@ -11,7 +11,7 @@ from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "ocr-desktop/smoke"))
-from demo import pagina_demo
+from demo import pagina_demo, pagina_manoscritta, TRASCRIZIONE_MANOSCRITTA
 spec = importlib.util.spec_from_file_location("smoke_ui", ROOT / "ocr-desktop/smoke/ui.py")
 ui = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ui)
@@ -46,6 +46,29 @@ def main():
             for theme in ("chiaro", "scuro"):
                 page.locator(f'#scelta-tema [data-tema="{theme}"]').click()
                 page.screenshot(path=str(out / ("app-light.png" if theme == "chiaro" else "app-dark.png")))
+
+            # Terza schermata: una pagina manoscritta, che e' il caso d'uso
+            # vero dell'applicazione. Si scambiano immagine e trascrizione nel
+            # ponte simulato e si ricostruisce l'elenco, cosi' le carte
+            # ricaricano l'anteprima nuova.
+            page.locator('#scelta-tema [data-tema="chiaro"]').click()
+            page.evaluate(
+                "([immagine, testo]) => {"
+                "  window.__preview = immagine;"
+                "  window.__nomeDocumento = 'Fisica - appunti a mano.jpg';"
+                "  window.__contenuti.testo = testo;"
+                "}",
+                [base64.b64encode(pagina_manoscritta()).decode(), TRASCRIZIONE_MANOSCRITTA],
+            )
+            page.evaluate("window.__fixture('completata')")
+            page.locator(".testo-blocco").first.wait_for(state="visible")
+            page.wait_for_function(
+                "() => [...document.querySelectorAll('#scorri-documento .cornice img')]"
+                ".length > 0 && [...document.querySelectorAll('#scorri-documento .cornice img')]"
+                ".every(i => i.complete && i.naturalWidth > 0)"
+            )
+            page.screenshot(path=str(out / "app-manoscritto.png"))
+
             assert not errors, errors
             logo = base64.b64encode((out / "logo.png").read_bytes()).decode()
             page.set_viewport_size({"width": 1200, "height": 630})

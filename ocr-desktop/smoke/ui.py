@@ -34,7 +34,7 @@ BRIDGE = r"""
   ];
   const engine = { fase: 'pronto', etichetta: 'Motore pronto · CPU', dispositivo: 'CPU di prova' };
   const sample = (state = 'attesa') => Array.from({ length: 3 }, (_, n) => ({
-    id: `d0p${n+1}`, documento: 0, nome_documento: 'Appunti di matematica.pdf',
+    id: `d0p${n+1}`, documento: 0, nome_documento: window.__nomeDocumento || 'Appunti di matematica.pdf',
     numero: n+1, pagine_documento: 3, stato: state, caratteri: state === 'completata' ? 800 : 0,
     correzioni_dizionario: state === 'completata' ? 2 : 0, correzioni_contesto: 0,
     secondi: state === 'completata' ? 3.2 : 0, tentativi: 1, fast_path: false,
@@ -43,6 +43,9 @@ BRIDGE = r"""
     testo: 'Appunti di matematica\n\nIl concetto di funzione\n\nUna funzione associa a ogni elemento del dominio uno e un solo elemento del codominio. La relazione può essere descritta con una formula, una tabella o un grafico.\n\nConsideriamo la funzione $f(x) = x^2 + 2x + 1$.\n\nPer trovare i suoi zeri, raccogliamo il quadrato di un binomio:\n\n$$f(x) = (x + 1)^2$$\n\nIl vertice si trova nel punto $V = (-1, 0)$. La parabola ha concavità rivolta verso l’alto ed è simmetrica rispetto alla retta $x = -1$.\n\n| x | f(x) |\n| --- | --- |\n| -2 | 1 |\n| -1 | 0 |\n| 0 | 1 |\n\nOsservazione\n\nLo stesso procedimento si applica alle altre funzioni quadratiche. Prima si individua il dominio, poi si studiano il segno e le intersezioni con gli assi.',
     correzioni: [],
   };
+  // Le schermate del sito cambiano pagina e trascrizione senza toccare il
+  // ponte: qui si espone il contenuto, li' lo si sostituisce.
+  window.__contenuti = contents;
   window.__calls = [];
   window.__failStart = false;
   window.__saved = [];

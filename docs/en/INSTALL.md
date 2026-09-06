@@ -1,6 +1,6 @@
 # Installing on Windows
 
-*[Versione italiana](../INSTALLAZIONE.md)*
+*[Versione italiana](../it/INSTALLAZIONE.md)*
 
 ## Requirements
 

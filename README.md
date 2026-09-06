@@ -6,9 +6,9 @@
   <p>
     <a href="https://GioOtto.github.io/ITA-OCR/">Sito</a> ·
     <a href="https://github.com/GioOtto/ITA-OCR/releases/latest">Download Windows</a> ·
-    <a href="docs/MODELLO.md">Modello</a> ·
+    <a href="docs/it/MODELLO.md">Modello</a> ·
     <a href="docs/assets/ITA-OCR-report-tecnico.pdf">Report tecnico</a> ·
-    <a href="LEGGIMI-WINDOWS.md">Compilare</a> ·
+    <a href="docs/it/LEGGIMI-WINDOWS.md">Compilare</a> ·
     <a href="https://github.com/GioOtto/ITA-OCR/issues">Segnalazioni</a>
   </p>
   <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="Codice MIT" src="https://img.shields.io/badge/codice-MIT-27674c" /> <img alt="Inferenza locale" src="https://img.shields.io/badge/inferenza-locale-27674c" /> <img alt="Nessuna telemetria" src="https://img.shields.io/badge/telemetria-nessuna-27674c" /></p>
@@ -35,13 +35,13 @@ essere letti direttamente, senza passare dal modello.
 
 1. Scarica **ITA-OCR-setup_v1.0.0.exe** dalla [release Windows](https://github.com/GioOtto/ITA-OCR/releases/latest).
 2. Installa l’app nel tuo profilo utente: non richiede privilegi di amministratore.
-3. Scarica separatamente i **due file GGUF** indicati nella [guida al modello](docs/MODELLO.md) e mettili nella cartella `models` accanto all’app.
+3. Scarica separatamente i **due file GGUF** indicati nella [guida al modello](docs/it/MODELLO.md) e mettili nella cartella `models` accanto all’app.
 4. Apri ITA-OCR, importa un documento, avvia la trascrizione e confrontala con l’originale.
 
 L’installer contiene applicazione, motore e dizionari pubblici. **I pesi sono
 distribuiti separatamente su Hugging Face; il dataset resta privato.** Per la
 procedura completa, i requisiti e la risoluzione dei problemi vedi la
-[guida Windows](docs/INSTALLAZIONE.md).
+[guida Windows](docs/it/INSTALLAZIONE.md).
 
 ## Cosa puoi fare
 
@@ -58,6 +58,11 @@ procedura completa, i requisiti e la risoluzione dei problemi vedi la
 
 ![ITA-OCR in tema scuro, esempio sintetico](docs/assets/app-dark.png)
 
+![Una pagina manoscritta e la sua trascrizione affiancate, esempio sintetico](docs/assets/app-manoscritto.png)
+
+*Il caso d’uso vero: una pagina scritta a mano a sinistra, il testo riconosciuto
+a destra, con le formule composte. Anche questa pagina è sintetica.*
+
 ## Come funziona
 
 <picture>
@@ -73,6 +78,46 @@ localmente. Tauri collega l’interfaccia HTML/CSS/JavaScript al backend Rust.
 Il motore supporta CPU, Vulkan e CUDA quando hardware, driver e pacchetto
 sono compatibili. Il collaudo Windows locale è stato eseguito su AMD Radeon
 RX 7900 XT con Vulkan. Non implica prestazioni equivalenti su ogni GPU.
+
+## Quanto migliora rispetto al modello base
+
+Il fine-tuning riduce l’errore su tutti gli insiemi di valutazione disponibili,
+su entrambi gli assi. Le cifre sono quelle del
+[report tecnico](docs/assets/ITA-OCR-report-tecnico.pdf), con l’insieme su cui
+sono state misurate — perché una percentuale senza il suo insieme non vuole
+dire niente.
+
+| Insieme di valutazione | Errore sui caratteri | Errore sulle parole |
+| --- | --- | --- |
+| Holdout, 164 pagine, scriventi mai visti in addestramento | 30,9 → 25,7 (**−16,7%**) | 54,7 → 45,5 (**−16,7%**) |
+| Benchmark sigillato, 67 pagine leggibili | 29,3 → 18,8 (**−35,9%**) | 56,7 → 39,0 (**−31,3%**) |
+| Sottoinsieme dichiarato facile, 61 pagine | 12,1 → 11,3 (−6,5%) | 37,0 → 30,7 (−17,0%) |
+
+Conta anche un secondo effetto, meno visibile in una percentuale: **le pagine
+perse passano da 24 a 5** su un pannello di 48 pagine problematiche. È il lavoro
+della cascata, che riconosce una decodifica finita male e ritenta. E costa meno
+del non averla: sull’holdout l’intera passata con cascata è più rapida di una
+passata sola senza, perché le pagine in fuga vengono interrotte invece di
+correre fino al limite di token.
+
+Le percentuali sono riduzioni relative su quegli insiemi, non una percentuale
+universale di accuratezza. Il set finale è stato consultato più volte durante lo
+sviluppo: le misure sono descrittive, non un benchmark indipendente. Metodo
+completo e limiti in [BENCHMARKS.md](docs/it/BENCHMARKS.md).
+
+## Serve una GPU?
+
+No. Il modello gira anche su CPU, ed è la stessa qualità: cambia solo il tempo.
+
+Sulla macchina di collaudo una pagina passa da poco più di un secondo e mezzo
+su GPU a una quindicina di secondi su CPU — circa un ordine di grandezza. I
+valori assoluti dipendono da processore, scheda video, driver e complessità
+della pagina, quindi vanno presi come rapporto e non come promessa: su un’altra
+macchina saranno altri numeri, con lo stesso divario.
+
+Su CPU il tempo se ne va soprattutto nel codificare l’immagine, non nel generare
+il testo, e la quantizzazione fa risparmiare memoria più che tempo: circa 2,4 GB
+residenti con i pesi Q8_0 distribuiti.
 
 ## Elaborazione locale e dati personali
 
@@ -94,7 +139,7 @@ chi li detiene. È la differenza sostanziale rispetto a un OCR cloud.
 capo al titolare del trattamento e dipende da base giuridica, informativa,
 tempi di conservazione, sicurezza del dispositivo e gestione dell’archivio
 locale — che ITA-OCR salva nel profilo utente e che la disinstallazione non
-rimuove. Vedi [PRIVACY.md](PRIVACY.md) e [SECURITY.md](SECURITY.md).
+rimuove. Vedi [PRIVACY.md](docs/it/PRIVACY.md) e [SECURITY.md](.github/SECURITY.md).
 
 ## Modello, dati e limiti
 
@@ -102,7 +147,7 @@ rimuove. Vedi [PRIVACY.md](PRIVACY.md) e [SECURITY.md](SECURITY.md).
 - **Adattamento:** fine-tuning per la scrittura italiana, distribuito in GGUF insieme al proiettore visivo compatibile — [`ueuegio/ITA-OCR`](https://huggingface.co/ueuegio/ITA-OCR).
 - **Dataset:** privato, non incluso nel repository, nel sito, nell’installer o nelle schermate.
 - **Report tecnico:** [*Teaching a Vision Model When to Stop*](docs/assets/ITA-OCR-report-tecnico.pdf) — fine-tuning, collasso della terminazione e cascata di inferenza.
-- **Valutazione:** [metodo e limiti](BENCHMARKS.md); non vengono pubblicati esempi reali, identificatori o risultati per persona.
+- **Valutazione:** [metodo e limiti](docs/it/BENCHMARKS.md); non vengono pubblicati esempi reali, identificatori o risultati per persona.
 - **Accuratezza:** l’OCR può omettere, ripetere o inventare testo, soprattutto con pagine complesse, formule o scrittura difficile. Verifica ogni risultato sull’originale.
 
 La correzione contestuale avanzata richiede risorse lessicali locali aggiuntive
@@ -116,21 +161,24 @@ git clone --recurse-submodules https://github.com/GioOtto/ITA-OCR.git
 cd ITA-OCR
 ```
 
-Segui [LEGGIMI-WINDOWS.md](LEGGIMI-WINDOWS.md) per toolchain e build.
+Segui [LEGGIMI-WINDOWS.md](docs/it/LEGGIMI-WINDOWS.md) per toolchain e build.
 
 ```text
-ocr-desktop/app/src-tauri/     backend Rust e configurazione Tauri
-ocr-desktop/app/ui/            interfaccia e asset
-ocr-desktop/resources/         dizionari pubblici e relative licenze
-ocr-desktop/scripts/           generazione icone, build e installer
-ocr-desktop/smoke/             prove UI con contenuti sintetici
-ocr-ita/vendor/llama.cpp/      submodule del motore
-docs/                          sito statico, immagini e guide
-scripts/                       schemi, schermate e verifica di pubblicazione
-licenses/                      avvisi e licenze delle dipendenze
+docs/                       sito statico: index.html, en/index.html, assets/
+docs/it/                    guide in italiano
+docs/en/                    guide in inglese
+.github/                    contribuire, sicurezza e workflow di build
+ocr-desktop/app/src-tauri/  backend Rust e configurazione Tauri
+ocr-desktop/app/ui/         interfaccia e asset
+ocr-desktop/resources/      dizionari pubblici e relative licenze
+ocr-desktop/scripts/        generazione icone, build e installer
+ocr-desktop/smoke/          prove UI con contenuti sintetici
+ocr-ita/vendor/llama.cpp/   submodule del motore
+scripts/                    schemi, schermate e verifica di pubblicazione
+licenses/                   avvisi e licenze delle dipendenze
 ```
 
-Contributi e segnalazioni: [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributi e segnalazioni: [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 ## Dichiarazione sull’uso dell’AI
 
@@ -146,10 +194,10 @@ Il codice originale di ITA-OCR è distribuito sotto [licenza MIT](LICENSE).
 Le dipendenze e i dati di terze parti conservano le rispettive licenze:
 in particolare, il dizionario italiano è GPL-3.0 e `spellbook` è MPL-2.0.
 La licenza MIT del progetto non sostituisce quelle dei componenti inclusi.
-Vedi [TERZE-PARTI.md](TERZE-PARTI.md) e [licenses/](licenses/).
+Vedi [TERZE-PARTI.md](docs/it/TERZE-PARTI.md) e [licenses/](licenses).
 
 ## Contatti
 
 Segnalazioni e proposte: [issue del repository](https://github.com/GioOtto/ITA-OCR/issues).
 Per contatto diretto: **giorgio.ottoboni@proton.me**.
-Per le vulnerabilità segui prima [SECURITY.md](SECURITY.md).
+Per le vulnerabilità segui prima [SECURITY.md](.github/SECURITY.md).

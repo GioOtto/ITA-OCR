@@ -1,6 +1,6 @@
 # Building ITA-OCR on Windows
 
-*[Versione italiana](LEGGIMI-WINDOWS.md)*
+*[Versione italiana](../it/LEGGIMI-WINDOWS.md)*
 
 ## Prerequisites
 
@@ -55,7 +55,7 @@ drive letters or user profiles in the scripts.
 
 The public installer ships the application, the runtime, the dictionaries and
 the licences. The GGUF weights are downloaded separately from Hugging Face:
-[MODEL.md](docs/en/MODEL.md). The dataset and the private lexical resources are
+[MODEL.md](MODEL.md). The dataset and the private lexical resources are
 not part of the package.
 
 ## Icons

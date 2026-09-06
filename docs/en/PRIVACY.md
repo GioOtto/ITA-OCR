@@ -1,6 +1,6 @@
 # Privacy and data
 
-*[Versione italiana](PRIVACY.md)*
+*[Versione italiana](../it/PRIVACY.md)*
 
 ## Where processing happens
 

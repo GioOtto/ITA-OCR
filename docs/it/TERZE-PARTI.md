@@ -1,11 +1,11 @@
 # Componenti di terze parti
 
-*[English version](THIRD-PARTY.md)*
+*[English version](../en/THIRD-PARTY.md)*
 
-Il codice originale di ITA-OCR è distribuito sotto [licenza MIT](LICENSE).
+Il codice originale di ITA-OCR è distribuito sotto [licenza MIT](../../LICENSE).
 Questa licenza copre il codice di questo repository e **non sostituisce** quelle
 dei componenti elencati qui sotto, che restano in vigore per le rispettive parti.
-I testi completi si trovano in [licenses/](licenses/).
+I testi completi si trovano in [licenses/](../../licenses).
 
 ## In breve
 
@@ -39,7 +39,7 @@ i riferimenti a GLM-OCR nella documentazione sono descrittivi dell'origine.
 **llama.cpp** — MIT, copyright ggml authors. Incluso come sottomodulo in
 `ocr-ita/vendor/llama.cpp`; i binari `llama-server` e le librerie dei backend
 sono ridistribuiti nel pacchetto Windows. Testo in
-[licenses/llama.cpp-MIT.txt](licenses/llama.cpp-MIT.txt).
+[licenses/llama.cpp-MIT.txt](../../licenses/llama.cpp-MIT.txt).
 
 **Tauri**, con WRY e TAO — MIT o Apache-2.0, a scelta di chi ridistribuisce.
 Compilato dentro l'eseguibile.
@@ -47,17 +47,17 @@ Compilato dentro l'eseguibile.
 **PDFium** — BSD-3-Clause, copyright The PDFium Authors e Google. Ridistribuito
 come `pdfium.dll`, dai binari di
 [bblanchon/pdfium-binaries](https://github.com/bblanchon/pdfium-binaries).
-Testo in [licenses/PDFium-BSD-3-Clause.txt](licenses/PDFium-BSD-3-Clause.txt).
+Testo in [licenses/PDFium-BSD-3-Clause.txt](../../licenses/PDFium-BSD-3-Clause.txt).
 
 **KaTeX** — MIT, copyright Khan Academy. Incluso in `ocr-desktop/app/ui/vendor/katex`
-con i propri font. Testo in [licenses/KaTeX-LICENSE.txt](licenses/KaTeX-LICENSE.txt).
+con i propri font. Testo in [licenses/KaTeX-LICENSE.txt](../../licenses/KaTeX-LICENSE.txt).
 
 **spellbook** — MPL-2.0. È una libreria Rust, quindi il suo codice è collegato
 staticamente nell'eseguibile. MPL-2.0 §3.2 consente di distribuire l'eseguibile
 sotto una licenza diversa purché il codice sorgente della libreria resti
 disponibile e gli avvisi non vengano rimossi: il sorgente è pubblico all'indirizzo
 sopra e il testo della licenza è in
-[licenses/spellbook-MPL-2.0.txt](licenses/spellbook-MPL-2.0.txt).
+[licenses/spellbook-MPL-2.0.txt](../../licenses/spellbook-MPL-2.0.txt).
 
 ## Dizionari
 
@@ -86,9 +86,9 @@ riconoscere le parole inglesi e lasciarle intatte, mai a correggerle.
 L'applicazione dipende da 494 crate. La distribuzione delle licenze è in netta
 prevalenza MIT o Apache-2.0, con alcuni componenti Unicode-3.0, MPL-2.0 e Zlib.
 L'elenco completo, crate per crate, è in
-[licenses/rust-dependencies.json](licenses/rust-dependencies.json) e in
-[licenses/RUST.md](licenses/RUST.md); i testi delle licenze raccolte sono in
-[licenses/rust/](licenses/rust/).
+[licenses/rust-dependencies.json](../../licenses/rust-dependencies.json) e in
+[licenses/RUST.md](../../licenses/RUST.md); i testi delle licenze raccolte sono in
+[licenses/rust/](../../licenses/rust).
 
 ## Componenti di sistema
 

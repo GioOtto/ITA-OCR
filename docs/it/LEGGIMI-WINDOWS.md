@@ -1,6 +1,6 @@
 # Compilare ITA-OCR su Windows
 
-*[English version](BUILDING.md)*
+*[English version](../en/BUILDING.md)*
 
 ## Prerequisiti
 
@@ -54,7 +54,7 @@ base diverse: usa `Resolve-Path` e passa i risultati, senza fissare lettere
 unità o profili utente negli script.
 
 L'installer pubblico include applicazione, runtime, dizionari e licenze.
-I pesi GGUF si scaricano separatamente da Hugging Face: [MODELLO.md](docs/MODELLO.md).
+I pesi GGUF si scaricano separatamente da Hugging Face: [MODELLO.md](MODELLO.md).
 Il dataset e le risorse lessicali personali non fanno parte del pacchetto.
 
 ## Icone

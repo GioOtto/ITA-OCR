@@ -1,6 +1,6 @@
 # Downloading the model
 
-*[Versione italiana](../MODELLO.md)*
+*[Versione italiana](../it/MODELLO.md)*
 
 The weights are neither in the repository nor in the installer: they are two
 GGUF files totalling about 1.2 GB, beyond GitHub's per-file limit. They are
@@ -79,8 +79,8 @@ therefore differ from the app's on the same page.
 
 The weights derive from [GLM-OCR](https://huggingface.co/zai-org/GLM-OCR) by
 Z.ai, declared MIT in the upstream model card; the fine-tune keeps the same
-licence. See [THIRD-PARTY.md](../../THIRD-PARTY.md).
+licence. See [THIRD-PARTY.md](THIRD-PARTY.md).
 
 The training dataset stays private and is not needed to use the model.
 Recognition can omit, repeat or invent text: see
-[BENCHMARKS.en.md](../../BENCHMARKS.en.md) for the stated method and limits.
+[BENCHMARKS.md](BENCHMARKS.md) for the stated method and limits.

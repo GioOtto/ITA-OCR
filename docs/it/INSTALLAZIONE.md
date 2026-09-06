@@ -1,6 +1,6 @@
 # Installare su Windows
 
-*[English version](en/INSTALL.md)*
+*[English version](../en/INSTALL.md)*
 
 ## Requisiti
 

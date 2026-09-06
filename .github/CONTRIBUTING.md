@@ -24,7 +24,7 @@ python scripts/verifica-pubblicazione.py
 
 La prima riguarda il backend, la seconda l’interfaccia con Playwright e
 Chromium, la terza controlla che non stia per uscire materiale privato.
-La [guida Windows](LEGGIMI-WINDOWS.md) descrive la compilazione completa.
+La [guida Windows](../docs/it/LEGGIMI-WINDOWS.md) descrive la compilazione completa.
 
 Se cambi schemi o schermate, rigenerali invece di modificarli a mano:
 `python scripts/genera-diagrammi.py` e `python scripts/genera-schermate.py`.
@@ -56,7 +56,7 @@ python scripts/verifica-pubblicazione.py
 
 The first covers the backend, the second the interface through Playwright and
 Chromium, the third makes sure no private material is about to be published.
-The [build guide](BUILDING.md) covers the full compilation.
+The [build guide](../docs/en/BUILDING.md) covers the full compilation.
 
 If you change diagrams or screenshots, regenerate them instead of editing them
 by hand: `python scripts/genera-diagrammi.py` and

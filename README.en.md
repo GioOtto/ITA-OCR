@@ -8,7 +8,7 @@
     <a href="https://github.com/GioOtto/ITA-OCR/releases/latest">Windows download</a> ·
     <a href="docs/en/MODEL.md">Model</a> ·
     <a href="docs/assets/ITA-OCR-report-tecnico.pdf">Technical report</a> ·
-    <a href="BUILDING.md">Building</a> ·
+    <a href="docs/en/BUILDING.md">Building</a> ·
     <a href="https://github.com/GioOtto/ITA-OCR/issues">Issues</a>
   </p>
   <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="MIT code" src="https://img.shields.io/badge/code-MIT-27674c" /> <img alt="Local inference" src="https://img.shields.io/badge/inference-local-27674c" /> <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-27674c" /></p>
@@ -58,6 +58,11 @@ private.** For the full procedure, requirements and troubleshooting see the
 
 ![ITA-OCR in dark theme, synthetic example](docs/assets/app-dark.png)
 
+![A handwritten page and its transcription side by side, synthetic example](docs/assets/app-manoscritto.png)
+
+*The real use case: a handwritten page on the left, the recognised text on the
+right, with the formulas typeset. This page is synthetic too.*
+
 ## How it works
 
 <picture>
@@ -73,6 +78,45 @@ HTML/CSS/JavaScript interface to the Rust backend.
 The engine supports CPU, Vulkan and CUDA where hardware, drivers and package
 allow it. Local Windows testing was carried out on an AMD Radeon RX 7900 XT
 with Vulkan; that does not imply equivalent performance on every GPU.
+
+## How much better than the base model
+
+The fine-tune lowers the error on every evaluation set available, on both axes.
+The figures come from the [technical report](docs/assets/ITA-OCR-report-tecnico.pdf),
+each with the set it was measured on — because a percentage without its set
+means nothing.
+
+| Evaluation set | Character error | Word error |
+| --- | --- | --- |
+| Holdout, 164 pages, writers never seen in training | 30.9 → 25.7 (**−16.7%**) | 54.7 → 45.5 (**−16.7%**) |
+| Sealed benchmark, 67 readable pages | 29.3 → 18.8 (**−35.9%**) | 56.7 → 39.0 (**−31.3%**) |
+| Subset declared easy, 61 pages | 12.1 → 11.3 (−6.5%) | 37.0 → 30.7 (−17.0%) |
+
+A second effect matters as much, and a percentage hides it: **pages lost drop
+from 24 to 5** on a 48-page panel of problematic pages. That is the cascade at
+work, recognising a decode that ended badly and retrying. And it costs less than
+not having it: on the holdout the whole cascaded run is faster than a single
+plain pass, because runaway pages are cut short instead of running to the token
+ceiling.
+
+These are relative reductions on those sets, not a universal accuracy figure.
+The final set was consulted several times during development: the measurements
+are descriptive, not an independent benchmark. Full method and limits in
+[BENCHMARKS.md](docs/en/BENCHMARKS.md).
+
+## Do I need a GPU?
+
+No. The model also runs on the CPU, at the same quality: only the time changes.
+
+On the test machine a page goes from a little over a second and a half on the
+GPU to roughly fifteen seconds on the CPU — about an order of magnitude. The
+absolute values depend on the processor, the graphics card, the drivers and the
+complexity of the page, so read them as a ratio rather than a promise: another
+machine will produce other numbers with the same gap.
+
+On the CPU the time goes mostly into encoding the image rather than generating
+the text, and quantisation buys memory rather than latency: around 2.4 GB
+resident with the Q8_0 weights that ship.
 
 ## Local processing and personal data
 
@@ -94,7 +138,7 @@ is the substantive difference from a cloud OCR service.
 the data controller and depends on the legal basis, the privacy notice,
 retention periods, device security and the handling of the local history —
 which ITA-OCR stores in the user profile and which uninstalling does not
-remove. See [PRIVACY.en.md](PRIVACY.en.md) and [SECURITY.md](SECURITY.md).
+remove. See [PRIVACY.md](docs/en/PRIVACY.md) and [SECURITY.md](.github/SECURITY.md).
 
 ## Model, data and limits
 
@@ -102,7 +146,7 @@ remove. See [PRIVACY.en.md](PRIVACY.en.md) and [SECURITY.md](SECURITY.md).
 - **Adaptation:** fine-tuned for Italian handwriting, distributed in GGUF together with the matching vision projector — [`ueuegio/ITA-OCR`](https://huggingface.co/ueuegio/ITA-OCR).
 - **Dataset:** private. It is not part of the repository, the website, the installer or the screenshots.
 - **Technical report:** [*Teaching a Vision Model When to Stop*](docs/assets/ITA-OCR-report-tecnico.pdf) — the fine-tune, the termination collapse and the inference cascade.
-- **Evaluation:** [method and limits](BENCHMARKS.en.md); no real examples, identifiers or per-person results are published.
+- **Evaluation:** [method and limits](docs/en/BENCHMARKS.md); no real examples, identifiers or per-person results are published.
 - **Accuracy:** OCR can omit, repeat or invent text, especially on complex layouts, formulas or difficult handwriting. Always check the result against the original.
 
 Advanced context-aware correction needs additional local lexical resources that
@@ -116,21 +160,24 @@ git clone --recurse-submodules https://github.com/GioOtto/ITA-OCR.git
 cd ITA-OCR
 ```
 
-See [BUILDING.md](BUILDING.md) for the toolchain and the build.
+See [BUILDING.md](docs/en/BUILDING.md) for the toolchain and the build.
 
 ```text
-ocr-desktop/app/src-tauri/     Rust backend and Tauri configuration
-ocr-desktop/app/ui/            interface and assets
-ocr-desktop/resources/         public dictionaries and their licences
-ocr-desktop/scripts/           icon generation, build and installer
-ocr-desktop/smoke/             UI checks with synthetic content
-ocr-ita/vendor/llama.cpp/      engine submodule
-docs/                          static website, images and guides
-scripts/                       diagrams, screenshots and publication check
-licenses/                      third-party notices and licences
+docs/                       static website: index.html, en/index.html, assets/
+docs/en/                    guides in English
+docs/it/                    guides in Italian
+.github/                    contributing, security and the build workflow
+ocr-desktop/app/src-tauri/  Rust backend and Tauri configuration
+ocr-desktop/app/ui/         interface and assets
+ocr-desktop/resources/      public dictionaries and their licences
+ocr-desktop/scripts/        icon generation, build and installer
+ocr-desktop/smoke/          UI checks with synthetic content
+ocr-ita/vendor/llama.cpp/   engine submodule
+scripts/                    diagrams, screenshots and publication check
+licenses/                   third-party notices and licences
 ```
 
-Contributions and reports: [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions and reports: [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
 ## Statement on the use of AI
 
@@ -145,10 +192,10 @@ The original ITA-OCR code is released under the [MIT licence](LICENSE).
 Third-party dependencies and data keep their own licences: in particular the
 Italian dictionary is GPL-3.0 and `spellbook` is MPL-2.0. The project's MIT
 licence does not replace the licences of the bundled components.
-See [THIRD-PARTY.md](THIRD-PARTY.md) and [licenses/](licenses/).
+See [THIRD-PARTY.md](docs/en/THIRD-PARTY.md) and [licenses/](licenses).
 
 ## Contact
 
 Reports and proposals: [repository issues](https://github.com/GioOtto/ITA-OCR/issues).
 Direct contact: **giorgio.ottoboni@proton.me**.
-For vulnerabilities, follow [SECURITY.md](SECURITY.md) first.
+For vulnerabilities, follow [SECURITY.md](.github/SECURITY.md) first.

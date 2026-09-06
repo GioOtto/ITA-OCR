@@ -1,6 +1,6 @@
 # Privacy e dati
 
-*[English version](PRIVACY.en.md)*
+*[English version](../en/PRIVACY.md)*
 
 ## Dove avviene il trattamento
 

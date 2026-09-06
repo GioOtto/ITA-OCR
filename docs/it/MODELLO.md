@@ -1,6 +1,6 @@
 # Scaricare il modello
 
-*[English version](en/MODEL.md)*
+*[English version](../en/MODEL.md)*
 
 I pesi non sono nel repository né nell'installer: sono due file GGUF per circa
 1,2 GB complessivi, oltre il limite per file di GitHub. Si scaricano da
@@ -78,8 +78,8 @@ di comando può quindi differire da quello dell'app sulla stessa pagina.
 
 I pesi derivano da [GLM-OCR](https://huggingface.co/zai-org/GLM-OCR) di Z.ai,
 dichiarato MIT nella model card upstream; il fine-tuning mantiene la stessa
-licenza. Vedi [TERZE-PARTI.md](../TERZE-PARTI.md).
+licenza. Vedi [TERZE-PARTI.md](TERZE-PARTI.md).
 
 Il dataset di addestramento resta privato e non è necessario per usare il
 modello. Il riconoscimento può omettere, ripetere o inventare testo: vedi
-[BENCHMARKS.md](../BENCHMARKS.md) per metodo e limiti dichiarati.
+[BENCHMARKS.md](BENCHMARKS.md) per metodo e limiti dichiarati.

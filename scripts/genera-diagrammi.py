@@ -17,11 +17,14 @@ from xml.sax.saxutils import escape
 
 USCITA = Path(__file__).resolve().parents[1] / "docs/assets"
 
+# Gli stessi colori dell'applicazione, presi da app/ui/styles.css. Li' l'accento
+# e' inchiostro e non un colore, e gli schemi seguono la stessa regola: cosi'
+# non stonano ne' con l'interfaccia ne' con il sito.
 TEMI = {
-    "light": dict(fondo="#f1f3ec", carta="#ffffff", bordo="#ccd6c6", testo="#22382c",
-                  tenue="#667069", accento="#22624a", confine="#a9bbaa"),
-    "dark": dict(fondo="#12150f", carta="#1b201a", bordo="#333d33", testo="#e8ede6",
-                 tenue="#98a598", accento="#7cc09a", confine="#43513f"),
+    "light": dict(fondo="#f7f7f8", carta="#ffffff", bordo="#e6e6e8", testo="#1f2023",
+                  tenue="#5c6065", accento="#1f2023", confine="#c9cacd"),
+    "dark": dict(fondo="#0f0f0f", carta="#1a1a1a", bordo="#2f2f2f", testo="#ececec",
+                 tenue="#b4b4b4", accento="#ececec", confine="#4a4a4a"),
 }
 
 FONT = "system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif"
