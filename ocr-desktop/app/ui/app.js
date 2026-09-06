@@ -1068,7 +1068,7 @@ el("copia").addEventListener("click", async () => {
     ? selezione
     : await invoke("esporta");
   if (!tutto.trim()) {
-    avvisa("Non c'e' ancora niente da copiare.", true);
+    avvisa("Non c'è ancora niente da copiare.", true);
     return;
   }
   if (await copiaNegliAppunti(tutto)) {
@@ -1086,7 +1086,7 @@ async function esporta(formato) {
   const binario = formato === "docx";
   const contenuto = binario ? "" : await invoke("esporta");
   if (!binario && !contenuto.trim()) {
-    avvisa("Non c'e' ancora niente da esportare.", true);
+    avvisa("Non c'è ancora niente da esportare.", true);
     return;
   }
   const primo = pagine[0];
@@ -1754,7 +1754,7 @@ function disegnaArchivio() {
       avviso.append(icona("i-scollegato"));
       avviso.append(document.createTextNode("originale assente"));
       avviso.title =
-        "I file di partenza non sono piu' al loro posto: il testo resta, le immagini no.";
+        "I file di partenza non sono più al loro posto: il testo resta, le immagini no.";
       meta.append(punto, avviso);
     }
 
@@ -1789,7 +1789,7 @@ async function aggiornaArchivio() {
 
 async function apriSessione(voce) {
   if (inCorso || importazioneInCorso) {
-    avvisa("C'e' un'elaborazione in corso: interrompila prima di aprire un'altra sessione.", true);
+    avvisa("C'è un'elaborazione in corso: interrompila prima di aprire un'altra sessione.", true);
     return;
   }
   try {
@@ -1802,7 +1802,7 @@ async function apriSessione(voce) {
     disegnaArchivio();
     avvisa(
       mancanti
-        ? `"${voce.nome}" ripresa. ${mancanti} file di partenza non sono piu' al loro posto: resta il testo, non le immagini.`
+        ? `"${voce.nome}" ripresa. ${mancanti} file di partenza non sono più al loro posto: resta il testo, non le immagini.`
         : `"${voce.nome}" ripresa.`,
       mancanti > 0
     );

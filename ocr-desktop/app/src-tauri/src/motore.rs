@@ -295,7 +295,7 @@ impl Motore {
                 let coda = coda_log(&log_server, 40);
                 cancella_pidfile();
                 return Err(format!(
-                    "il motore si e' chiuso durante il caricamento ({stato}).\n{coda}"
+                    "il motore si è chiuso durante il caricamento ({stato}).\n{coda}"
                 ));
             }
             if let Ok(salute) = http::json(porta, "GET", "/health", None, Duration::from_secs(3)) {
@@ -308,7 +308,7 @@ impl Motore {
                 let _ = processo.wait();
                 cancella_pidfile();
                 return Err(format!(
-                    "il motore non e' diventato pronto entro 180 s.\n{}",
+                    "il motore non è diventato pronto entro 180 s.\n{}",
                     coda_log(&log_server, 40)
                 ));
             }
@@ -324,7 +324,7 @@ impl Motore {
                 let _ = processo.kill();
                 let _ = processo.wait();
                 cancella_pidfile();
-                return Err(format!("proprieta' del motore non leggibili: {e}"));
+                return Err(format!("proprietà del motore non leggibili: {e}"));
             }
         };
         let marcatore = proprieta

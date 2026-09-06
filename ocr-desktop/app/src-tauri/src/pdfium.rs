@@ -128,9 +128,9 @@ fn apri<'a>(api: &'a Api, dati: &[u8]) -> Result<Documento<'a>, String> {
     if handle.is_null() {
         let codice = unsafe { (api.ultimo_errore)() };
         return Err(match codice {
-            4 => "il PDF e' protetto da password".to_string(),
-            3 => "il PDF e' cifrato e non apribile".to_string(),
-            2 => "il file non e' un PDF valido".to_string(),
+            4 => "il PDF è protetto da password".to_string(),
+            3 => "il PDF è cifrato e non apribile".to_string(),
+            2 => "il file non è un PDF valido".to_string(),
             altro => format!("PDF non apribile (codice PDFium {altro})"),
         });
     }

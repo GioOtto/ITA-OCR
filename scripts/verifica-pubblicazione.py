@@ -57,6 +57,12 @@ VERSIONI = [
     (re.compile(r'class="version">v(\d+\.\d+\.\d+)<'), "etichetta di versione del sito"),
 ]
 
+# Un punto interrogativo isolato nel testo HTML e il carattere sostitutivo
+# Unicode sono quasi sempre il risultato di una conversione di codifica. Il
+# controllo avrebbe intercettato, per esempio, "Il codice ? stato" nell'app.
+TESTI_INTERFACCIA = {Path("ocr-desktop/app/ui/index.html")}
+CARATTERI_CORROTTI = re.compile(r"\ufffd|(?<=\s)\?(?=\s)")
+
 
 def versione_dichiarata() -> str | None:
     """La versione del manifesto, unica fonte di verita'."""
@@ -121,6 +127,9 @@ def main() -> int:
             testo = percorso.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
             continue
+
+        if Path(nome) in TESTI_INTERFACCIA and CARATTERI_CORROTTI.search(testo):
+            problemi.append(f"{nome}: possibile carattere corrotto nell'interfaccia")
 
         for numero, riga in enumerate(testo.splitlines(), 1):
             for regola, motivo in VIETATI:

@@ -162,7 +162,7 @@ pub fn elenco() -> Vec<Voce> {
         });
     }
     // Le piu' recenti in cima.
-    voci.sort_by(|a, b| b.istante.cmp(&a.istante));
+    voci.sort_by_key(|voce| std::cmp::Reverse(voce.istante));
     voci
 }
 
@@ -336,7 +336,7 @@ pub fn carica(stato: &Stato, id: &str) -> Result<usize, String> {
         *corrente = Some(sessione.id.clone());
     }
     info!(
-        "sessione ripresa: {} ({} pagine, {mancanti} sorgenti non piu' disponibili)",
+        "sessione ripresa: {} ({} pagine, {mancanti} sorgenti non più disponibili)",
         sessione.nome,
         sessione.pagine.len()
     );

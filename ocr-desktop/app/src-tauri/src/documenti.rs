@@ -68,7 +68,7 @@ pub fn apri(percorso: &Path, forza_ocr: bool) -> Result<Documento, String> {
         )
     })?;
     if dati.is_empty() {
-        return Err("il file e' vuoto".into());
+        return Err("il file è vuoto".into());
     }
     let nome = percorso
         .file_name()

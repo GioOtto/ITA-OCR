@@ -228,7 +228,7 @@ fn genera_stream(
             Pezzo::Attesa => {
                 if ultimo_dato.elapsed() > STALLO_MASSIMO {
                     risposta.interrompi();
-                    return Err("il motore non risponde piu'".into());
+                    return Err("il motore non risponde più".into());
                 }
                 continue;
             }

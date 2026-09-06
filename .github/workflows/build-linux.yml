@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 150
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -50,11 +50,19 @@ jobs:
             build-essential cmake ninja-build pkg-config curl file patchelf \
             libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev libvulkan-dev
 
-      # Su qualche release di Ubuntu questi due non ci sono, o si chiamano in
-      # un altro modo. Non e' un errore: prepara.sh li estrae per conto suo.
-      - name: Compilatore di shader
-        continue-on-error: true
-        run: sudo apt-get install -y --no-install-recommends glslc spirv-headers
+      # Ubuntu 22.04 non pubblica glslc nei repository standard. Si usa il
+      # repository jammy di LunarG, come nella build Vulkan di llama.cpp,
+      # senza rinunciare alla compatibilita' data dalla glibc del runner.
+      - name: Compilatore di shader Vulkan
+        run: |
+          sudo install -d -m 0755 /etc/apt/keyrings
+          sudo curl -fsSL -o /etc/apt/keyrings/lunarg.asc \
+            https://packages.lunarg.com/lunarg-signing-key-pub.asc
+          echo "deb [signed-by=/etc/apt/keyrings/lunarg.asc] https://packages.lunarg.com/vulkan jammy main" \
+            | sudo tee /etc/apt/sources.list.d/lunarg-vulkan-jammy.list >/dev/null
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends shaderc spirv-headers
+          glslc --version
 
       - name: CUDA Toolkit
         if: inputs.con_cuda
@@ -95,7 +103,7 @@ jobs:
             2>/dev/null || true
 
       - name: Pubblica l'artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ITA-OCR-linux-x86_64
           path: |

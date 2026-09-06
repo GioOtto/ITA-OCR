@@ -93,7 +93,7 @@ fn salva_file(percorso: String, contenuto: String) -> Esito<String> {
 fn esporta_docx(stato: State<'_, Arc<Stato>>, percorso: String) -> Esito<String> {
     let testo = lavoro::esporta(&stato);
     if testo.trim().is_empty() {
-        return Err("non c'e' ancora niente da esportare".into());
+        return Err("non c'è ancora niente da esportare".into());
     }
     let percorso = PathBuf::from(percorso);
     if let Some(dir) = percorso.parent() {
@@ -214,7 +214,7 @@ fn archivio_salva(
 #[tauri::command]
 fn archivio_carica(app: AppHandle, stato: State<'_, Arc<Stato>>, id: String) -> Esito<usize> {
     if stato.in_corso.load(Ordering::SeqCst) {
-        return Err("c'e' un'elaborazione in corso: interrompila prima di aprire un'altra sessione".into());
+        return Err("c'è un'elaborazione in corso: interrompila prima di aprire un'altra sessione".into());
     }
     let mancanti = archivio::carica(&stato, &id)?;
     // Si sta lavorando su una voce che nell'archivio c'e': non ha piu' senso

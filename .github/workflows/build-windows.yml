@@ -48,7 +48,7 @@ jobs:
       CON_CUDA: ${{ github.event_name != 'workflow_dispatch' || inputs.con_cuda }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Rust (toolchain MSVC)
         uses: dtolnay/rust-toolchain@stable
@@ -231,7 +231,7 @@ jobs:
             }
 
       - name: Pubblica l'artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ITA-OCR-windows
           path: ITA-OCR-windows/

@@ -76,7 +76,7 @@ pub fn eos_dichiarato(percorso: &Path) -> Result<Option<i64>, String> {
     let file = File::open(percorso).map_err(|e| format!("{}: {e}", percorso.display()))?;
     let mut f = BufReader::with_capacity(1 << 20, file);
     if &leggi::<4>(&mut f)? != b"GGUF" {
-        return Err(format!("{} non e' un GGUF", percorso.display()));
+        return Err(format!("{} non è un GGUF", percorso.display()));
     }
     u32le(&mut f)?; // versione
     u64le(&mut f)?; // numero di tensori
