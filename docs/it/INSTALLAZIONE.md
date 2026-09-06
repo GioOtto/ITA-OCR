@@ -31,9 +31,14 @@ Per verificare il checksum con PowerShell, dalla cartella del download:
 Get-FileHash .\ITA-OCR-setup_v1.0.0.exe -Algorithm SHA256
 ```
 
-Il pacchetto attuale non è firmato con Authenticode. Se Windows segnala un
-editore non riconosciuto, verifica origine e checksum prima di decidere se
-eseguirlo. Non occorre disattivare le protezioni di Windows.
+Il pacchetto non è firmato con Authenticode, quindi SmartScreen mostra
+«Windows ha protetto il PC» e qualche antivirus può segnalare il file: è la
+reazione a un eseguibile poco diffuso e non firmato, non il rilevamento di
+codice malevolo. Per procedere: *Ulteriori informazioni* → *Esegui
+comunque*. Non occorre disattivare le protezioni di Windows.
+
+Il codice è pubblico e l'installer si compila dagli stessi sorgenti: vedi
+[LEGGIMI-WINDOWS.md](LEGGIMI-WINDOWS.md).
 
 ## Tipo di installazione
 

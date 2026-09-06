@@ -68,12 +68,26 @@ jobs:
           # Solo quello che serve a compilare: l'installazione completa e' enorme.
           sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
 
+      # SDK completo di LunarG, non i soli header e loader: il backend Vulkan
+      # di llama.cpp compila gli shader, e per farlo CMake pretende `glslc`,
+      # che sta nel bin dell'SDK e in nessuno dei componenti sciolti. Senza,
+      # la configure muore con "Could NOT find Vulkan (missing: glslc)".
       - name: Vulkan SDK
-        uses: humbletim/setup-vulkan-sdk@v1.2.1
-        with:
-          vulkan-query-version: latest
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+        shell: pwsh
+        run: |
+          $url = "https://sdk.lunarg.com/sdk/download/$env:VERSIONE_VULKAN/windows/vulkansdk-windows-X64-$env:VERSIONE_VULKAN.exe"
+          Write-Host "scarico $url"
+          Invoke-WebRequest -Uri $url -OutFile vulkan-sdk.exe
+          $radice = "C:\VulkanSDK\$env:VERSIONE_VULKAN"
+          # L'installatore e' Qt IFW: senza --accept-licenses aspetta un umano.
+          Start-Process -FilePath .\vulkan-sdk.exe -Wait -ArgumentList @(
+            "--root", $radice, "--accept-licenses", "--default-answer",
+            "--confirm-command", "install")
+          $glslc = Join-Path $radice "Bin\glslc.exe"
+          if (-not (Test-Path $glslc)) { throw "glslc non installato in $radice" }
+          & $glslc --version
+          "VULKAN_SDK=$radice" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "$radice\Bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
 
       - name: Sorgenti di llama.cpp
         shell: pwsh

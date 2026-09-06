@@ -47,6 +47,19 @@ portable folder or when you keep them on another drive with `OCR_ITA_MODELS`.
 **The training dataset stays private.** For the full procedure, requirements
 and troubleshooting see the [Windows guide](docs/en/INSTALL.md).
 
+## Windows will flag the installer
+
+The package is not signed with an Authenticode certificate. On first run
+SmartScreen shows **"Windows protected your PC"**, and some antivirus products
+may flag the file as suspicious: that is the standard reaction to an uncommon,
+unsigned executable, not a detection of malicious code. To continue:
+*More info* → *Run anyway*.
+
+Nothing here has to be taken on trust: the code is all in this repository, the
+installer is built from these sources with [the included scripts](docs/en/BUILDING.md),
+and the SHA-256 hashes are published in `SHA256SUMS.txt` next to the release.
+If you would rather not run a binary nobody signed, you can build it yourself.
+
 ## What it does
 
 | Feature | Behaviour |

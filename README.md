@@ -48,6 +48,20 @@ portabile o per tenerli su un altro disco con `OCR_ITA_MODELS`.
 requisiti e la risoluzione dei problemi vedi la
 [guida Windows](docs/it/INSTALLAZIONE.md).
 
+## Windows segnalerà l'installer
+
+Il pacchetto non è firmato con un certificato Authenticode. Al primo avvio
+SmartScreen mostra **«Windows ha protetto il PC»**, e qualche antivirus può
+segnalare il file come sospetto: è la reazione standard a un eseguibile poco
+diffuso e non firmato, non il rilevamento di codice malevolo. Per procedere:
+*Ulteriori informazioni* → *Esegui comunque*.
+
+Non c'è niente da prendere sulla fiducia: il codice è tutto in questo
+repository, l'installer è costruito da questi sorgenti con
+[gli script inclusi](docs/it/LEGGIMI-WINDOWS.md), e gli hash SHA-256 sono
+pubblicati in `SHA256SUMS.txt` accanto alla release. Se preferisci non
+eseguire un binario firmato da nessuno, puoi compilarlo tu.
+
 ## Cosa puoi fare
 
 | Funzione | Comportamento |

@@ -31,9 +31,14 @@ To verify the checksum with PowerShell, from the download folder:
 Get-FileHash .\ITA-OCR-setup_v1.0.0.exe -Algorithm SHA256
 ```
 
-The current package is not signed with Authenticode. If Windows reports an
-unknown publisher, verify the origin and the checksum before deciding whether
-to run it. There is no need to disable Windows protections.
+The package is not signed with Authenticode, so SmartScreen shows "Windows
+protected your PC" and some antivirus products may flag the file: that is the
+reaction to an uncommon, unsigned executable, not a detection of malicious
+code. To continue: *More info* → *Run anyway*. There is no need to disable
+Windows protections.
+
+The code is public and the installer builds from those same sources: see
+[BUILDING.md](BUILDING.md).
 
 ## Installation type
 

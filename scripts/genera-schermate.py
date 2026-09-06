@@ -90,14 +90,11 @@ def main():
                 h1{{font-size:68px;line-height:1.06;font-weight:500;letter-spacing:-.03em;
                   margin:78px 0 28px}}
                 p{{font-size:24px;line-height:1.5;color:#c4c4c4;margin:0}}
-                footer{{margin-top:56px;display:flex;gap:12px}}
-                footer span{{border:1px solid #242424;border-radius:999px;padding:8px 18px;
-                  font-size:16px;color:#8c8c8c}}</style>
+                footer{{margin-top:52px;font-size:17px;color:#8c8c8c}}</style>
                 <header><img src="data:image/png;base64,{logo}" alt="">ITA-OCR</header>
-                <h1>Dalla pagina al testo.<br>Sul tuo computer.</h1>
-                <p>OCR locale per la scrittura italiana, con GLM-OCR.</p>
-                <footer><span>Windows</span><span>Open source</span>
-                  <span>Elaborazione locale</span></footer></html>''')
+                <h1>OCR per la scrittura italiana</h1>
+                <p>Applicazione Windows che trascrive in locale, con un fine-tuning di GLM-OCR.</p>
+                <footer>Windows, open source, elaborazione locale.</footer></html>''')
             page.wait_for_timeout(400)
             page.screenshot(path=str(out / "social.png"))
             browser.close()
