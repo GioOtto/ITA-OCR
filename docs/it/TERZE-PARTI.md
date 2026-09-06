@@ -21,6 +21,7 @@ I testi completi si trovano in [licenses/](../../licenses).
 | Dizionario inglese `en_US` | riconoscimento dei termini da non correggere | SCOWL (permissiva) |
 | Crate Rust (494) | dipendenze dell'applicazione | in prevalenza MIT o Apache-2.0 |
 | Runtime Visual C++ | esecuzione su Windows | termini di ridistribuzione Microsoft |
+| [Inter](https://rsms.me/inter/) | carattere del sito | OFL-1.1 |
 
 ## Modello
 
@@ -96,6 +97,15 @@ Le librerie `msvcp140.dll`, `vcruntime140.dll` e `vcruntime140_1.dll` sono
 redistributable di Microsoft Visual C++, incluse accanto all'eseguibile secondo
 i termini di ridistribuzione di Visual Studio. Il runtime **WebView2** non è
 incluso: viene fornito da Microsoft e deve essere presente sul sistema.
+
+## Carattere del sito
+
+Il sito usa **Inter**, distribuito con la SIL Open Font License 1.1: il
+testo della licenza sta in [licenses/Inter-OFL-1.1.txt](../../licenses/Inter-OFL-1.1.txt).
+Il file del carattere e' servito dal sito stesso e non da un CDN di terzi,
+cosi' aprire la pagina non manda l'indirizzo IP di chi la visita a
+nessun altro. Il carattere riguarda solo il sito: l'applicazione usa quelli
+di sistema.
 
 ## Materiale non incluso
 

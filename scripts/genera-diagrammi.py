@@ -70,7 +70,7 @@ PIPELINE = {
         descrizione=("Il documento viene preparato, riconosciuto da GLM-OCR con llama.cpp, "
                      "corretto sul lessico e confrontato con l'originale, tutto sul computer "
                      "dell'utente. I PDF che contengono gia' il testo saltano il riconoscimento."),
-        confine="IL TUO COMPUTER · NESSUNA PAGINA ESCE",
+        confine="IL TUO COMPUTER, DA CUI NESSUNA PAGINA ESCE",
         tappe=[("Documento", "PDF o immagine", "aperto dall'utente"),
                ("Preparazione", "pagina 960 × 1248", "150 DPI, come in addestramento"),
                ("Riconoscimento", "GLM-OCR su llama.cpp", "CPU, Vulkan o CUDA"),
@@ -83,7 +83,7 @@ PIPELINE = {
         descrizione=("The document is prepared, recognised by GLM-OCR through llama.cpp, "
                      "spell-checked and compared with the original, all on the user's machine. "
                      "PDFs that already carry a text layer skip recognition."),
-        confine="YOUR MACHINE · NO PAGE EVER LEAVES",
+        confine="YOUR MACHINE, WHICH NO PAGE EVER LEAVES",
         tappe=[("Document", "PDF or image", "opened by the user"),
                ("Preparation", "960 × 1248 page", "150 DPI, as in training"),
                ("Recognition", "GLM-OCR on llama.cpp", "CPU, Vulkan or CUDA"),
@@ -142,10 +142,10 @@ PRIVACY = {
                   ("Modello GGUF", "letto da disco a ogni avvio"),
                   ("Dizionari", "correzione lessicale locale"),
                   ("llama-server", "in ascolto su 127.0.0.1")],
-        ingressi=[("Installer completo", "GitHub · con i modelli"),
-                  ("Solo i pesi", "Hugging Face · opzionale")],
+        ingressi=[("Installer completo", "da GitHub, con i modelli"),
+                  ("Solo i pesi", "da Hugging Face, facoltativo")],
         senso="solo in entrata",
-        piede="Nessuna telemetria · Nessuna API OCR remota · Nessun account · Funziona offline",
+        piede="Nessuna telemetria, nessuna API OCR remota, nessun account, funziona offline",
     ),
     "en": dict(
         titolo="Where the data stays with ITA-OCR",
@@ -158,10 +158,10 @@ PRIVACY = {
                   ("GGUF model", "read from disk at start-up"),
                   ("Dictionaries", "local spelling correction"),
                   ("llama-server", "listening on 127.0.0.1")],
-        ingressi=[("Complete installer", "GitHub · models included"),
-                  ("Weights alone", "Hugging Face · optional")],
+        ingressi=[("Complete installer", "from GitHub, models included"),
+                  ("Weights alone", "from Hugging Face, optional")],
         senso="inbound only",
-        piede="No telemetry · No remote OCR API · No account · Works offline",
+        piede="No telemetry, no remote OCR API, no account, works offline",
     ),
 }
 

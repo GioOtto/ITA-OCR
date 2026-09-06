@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="ITA-OCR trascrive la scrittura italiana sul tuo computer. App Windows, inferenza locale con GLM-OCR, confronto ed esportazione.">
-  <meta name="theme-color" content="#f6f5ef">
+  <meta name="theme-color" content="#000000">
   <meta property="og:title" content="ITA-OCR — Dalla pagina al testo">
   <meta property="og:description" content="OCR per la scrittura italiana. Elaborazione locale, confronto con l'originale e download Windows.">
   <meta property="og:image" content="https://GioOtto.github.io/ITA-OCR/assets/social.png">
@@ -21,20 +21,20 @@
   <a class="skip" href="#contenuto">Vai al contenuto</a>
   <header class="header">
     <a class="brand" href="#" aria-label="ITA-OCR, inizio"><img src="assets/logo.png" width="38" height="38" alt="">ITA-OCR</a>
-    <nav aria-label="Navigazione principale"><a href="#come-funziona">Come funziona</a><a href="#caratteristiche">L’app</a><a href="#risultati">Risultati</a><a href="#privacy">Privacy</a><a href="https://github.com/GioOtto/ITA-OCR">GitHub <span aria-hidden="true">↗</span></a><a class="lingua" href="en/" hreflang="en" lang="en">EN</a></nav>
-    <a class="button small" href="#download">Scarica per Windows <span aria-hidden="true">↓</span></a>
+    <nav aria-label="Navigazione principale"><a href="#come-funziona">Come funziona</a><a href="#caratteristiche">L’app</a><a href="#risultati">Risultati</a><a href="#privacy">Privacy</a><a href="https://github.com/GioOtto/ITA-OCR">GitHub</a><a class="lingua" href="en/" hreflang="en" lang="en">EN</a></nav>
+    <a class="button small" href="#download">Scarica per Windows</a>
   </header>
   <main id="contenuto">
     <section class="hero wrap">
-      <div class="eyebrow"><span class="dot"></span> OCR LOCALE · SCRITTURA ITALIANA</div>
-      <h1>Dalla pagina al testo.<br><em>Sul tuo computer.</em></h1>
+      <img class="marchio" src="assets/logo.png" width="64" height="64" alt="">
+      <h1>Dalla pagina al testo. Sul tuo computer.</h1>
       <p class="intro">Trascrivi le tue pagine, confronta ogni parola ed esporta il risultato.
         Con un fine-tuning di GLM-OCR, senza caricare i documenti su un servizio cloud.</p>
-      <div class="actions"><a class="button" href="#download">Scarica ITA-OCR <span aria-hidden="true">↓</span></a><a class="text-link" href="#come-funziona">Guarda come funziona <span aria-hidden="true">↗</span></a></div>
-      <div class="hero-notes"><span>Windows x64</span><span>Codice MIT</span><span>CPU · Vulkan · CUDA</span><span>Nessuna telemetria</span></div>
+      <div class="badges"><span>Elaborazione locale</span><span>Windows x64</span><span>CPU, Vulkan o CUDA</span><span>Nessuna telemetria</span><span>Codice MIT</span></div>
+      <div class="actions"><a class="button" href="#download">Scarica ITA-OCR</a><a class="text-link" href="#come-funziona">Guarda come funziona</a></div>
       <figure class="showcase">
-        <div class="frame-top"><span><i></i><i></i><i></i></span><span>IL DOCUMENTO E IL TESTO. FIANCO A FIANCO.</span><div class="theme-switch" role="group" aria-label="Tema della schermata"><button data-preview="light" aria-pressed="true">Chiaro</button><button data-preview="dark" aria-pressed="false">Scuro</button></div></div>
-        <img id="app-preview" src="assets/app-light.png" width="1380" height="920" alt="Interfaccia ITA-OCR con un documento sintetico e la sua trascrizione affiancati" fetchpriority="high">
+        <div class="frame-top"><span><i></i><i></i><i></i></span><span>IL DOCUMENTO E IL TESTO. FIANCO A FIANCO.</span><div class="theme-switch" role="group" aria-label="Tema della schermata"><button data-preview="light" aria-pressed="false">Chiaro</button><button data-preview="dark" aria-pressed="true">Scuro</button></div></div>
+        <img id="app-preview" src="assets/app-dark.png" width="1380" height="920" alt="Interfaccia ITA-OCR con un documento sintetico e la sua trascrizione affiancati" fetchpriority="high">
         <figcaption>Anteprima con contenuti sintetici. La schermata illustra l’interfaccia, non l’accuratezza del modello.</figcaption>
       </figure>
     </section>
@@ -47,10 +47,10 @@
       <div class="wrap"><div class="section-heading"><div><p class="eyebrow">DAL FILE AL TESTO</p><h2>Un percorso semplice.<br>Un motore locale.</h2></div><p>Una finestra per importare, trascrivere e verificare.<br>Il modello lavora dietro le quinte con llama.cpp.</p></div>
       <ol class="steps"><li><span>1</span><h3>Importa</h3><p>Apri un PDF o trascina un’immagine nell’app.</p></li><li><span>2</span><h3>Trascrivi</h3><p>GLM-OCR legge la pagina. Se il PDF contiene già testo, puoi estrarlo direttamente.</p></li><li><span>3</span><h3>Controlla</h3><p>Confronta l’uscita con l’originale e verifica le correzioni evidenziate.</p></li><li><span>4</span><h3>Esporta</h3><p>Porta il risultato nel tuo editor, mantenendo una sessione nell’archivio locale.</p></li></ol>
       <figure class="schema">
-        <img src="assets/pipeline-it-light.svg" width="1160" height="356" alt="Pipeline locale: documento, preparazione della pagina a 960 per 1248 punti, riconoscimento con GLM-OCR su llama.cpp con cascata di tentativi, verifica ed esportazione. Tutto avviene sul computer dell'utente." loading="lazy">
+        <img src="assets/pipeline-it-dark.svg" width="1160" height="356" alt="Pipeline locale: documento, preparazione della pagina a 960 per 1248 punti, riconoscimento con GLM-OCR su llama.cpp con cascata di tentativi, verifica ed esportazione. Tutto avviene sul computer dell'utente." loading="lazy">
         <figcaption>La cascata ritenta quando una pagina torna incompleta. I PDF con livello di testo saltano il modello.</figcaption>
       </figure>
-      <p style="margin-top:30px"><a class="text-link" href="https://github.com/GioOtto/ITA-OCR#come-funziona">Esplora il progetto <span aria-hidden="true">↗</span></a></p></div>
+      <p style="margin-top:30px"><a class="text-link" href="https://github.com/GioOtto/ITA-OCR#come-funziona">Esplora il progetto</a></p></div>
     </section>
     <section class="section wrap" id="caratteristiche">
       <div class="section-heading"><div><p class="eyebrow">PENSATA PER LE PAGINE</p><h2>Gli strumenti che servono,<br>nello stesso posto.</h2></div></div>
@@ -76,7 +76,7 @@
     <section class="section privacy-section" id="privacy"><div class="wrap">
       <div class="section-heading"><div><p class="eyebrow">DOVE RESTANO I DATI</p><h2>Le pagine non lasciano<br>il tuo computer.</h2></div><p>Il motore ascolta solo su 127.0.0.1.<br>Nessuna telemetria, nessun account, nessuna API OCR remota.</p></div>
       <figure class="schema">
-        <img src="assets/privacy-it-light.svg" width="1160" height="400" alt="Documenti, trascrizioni, archivio, modello GGUF e dizionari restano sul computer. Dalla rete arriva soltanto l'installer da GitHub, che porta con sé i modelli; i pesi da Hugging Face sono un'alternativa facoltativa." loading="lazy">
+        <img src="assets/privacy-it-dark.svg" width="1160" height="400" alt="Documenti, trascrizioni, archivio, modello GGUF e dizionari restano sul computer. Dalla rete arriva soltanto l'installer da GitHub, che porta con sé i modelli; i pesi da Hugging Face sono un'alternativa facoltativa." loading="lazy">
         <figcaption>Dopo l’installazione, il riconoscimento funziona senza connessione.</figcaption>
       </figure>
       <div class="privacy-grid">
@@ -86,8 +86,8 @@
     </div></section>
     <section class="section download-section" id="download"><div class="wrap">
       <div class="section-heading"><div><p class="eyebrow">INIZIA DA QUI</p><h2>Porta ITA-OCR<br>sul tuo computer.</h2></div><p>Un solo download: l’installer completo porta con sé i modelli.<br>Da lì in poi, puoi trascrivere offline.</p></div>
-      <div class="download-grid"><article class="download-card primary"><div class="card-label">01 / APPLICAZIONE</div><div class="platform"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h9v8H2zm11 0h9v8h-9zM2 13h9v8H2zm11 0h9v8h-9z"/></svg><h3>Windows</h3><span class="version">v1.0.0</span></div><p>Installer x64 per utente. L’installazione completa comprende app, motore, runtime, dizionari pubblici, licenze e i due modelli GGUF.</p><a class="button" href="https://github.com/GioOtto/ITA-OCR/releases/latest/download/ITA-OCR-setup_v1.0.0.exe">Scarica l’installer .exe <span aria-hidden="true">↓</span></a><div class="download-links"><a href="https://github.com/GioOtto/ITA-OCR/releases/latest">Release e checksum</a><a href="https://github.com/GioOtto/ITA-OCR/blob/main/docs/it/INSTALLAZIONE.md">Guida all’installazione ↗</a></div><p class="fine-print">Richiede WebView2. Circa 2,1 GB installati, oppure 1 GB scegliendo l’installazione senza modelli. Pacchetto non firmato: controlla origine e checksum.</p></article>
-      <article class="download-card"><div class="card-label">02 / MODELLO · FACOLTATIVO</div><h3>GLM-OCR, per l’italiano.</h3><p>Gli stessi due file GGUF che l’installer completo porta già con sé. Prendili qui se hai scelto l’installazione senza modelli, se usi la cartella portabile o se vuoi tenerli su un altro disco con <code>OCR_ITA_MODELS</code>.</p><a class="button outline" href="https://huggingface.co/ueuegio/ITA-OCR">Scarica i pesi su Hugging Face <span aria-hidden="true">↗</span></a><div class="download-links"><a href="https://github.com/GioOtto/ITA-OCR/blob/main/docs/it/MODELLO.md">Guida al modello ↗</a><a href="https://github.com/GioOtto/ITA-OCR/blob/main/docs/assets/ITA-OCR-report-tecnico.pdf">Report tecnico (PDF) ↗</a></div><p class="fine-print">Il dataset rimane privato e non serve per usare l’app.</p></article></div>
+      <div class="download-grid"><article class="download-card primary"><div class="card-label">01 / APPLICAZIONE</div><div class="platform"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h9v8H2zm11 0h9v8h-9zM2 13h9v8H2zm11 0h9v8h-9z"/></svg><h3>Windows</h3><span class="version">v1.0.0</span></div><p>Installer x64 per utente. L’installazione completa comprende app, motore, runtime, dizionari pubblici, licenze e i due modelli GGUF.</p><a class="button" href="https://github.com/GioOtto/ITA-OCR/releases/latest/download/ITA-OCR-setup_v1.0.0.exe">Scarica l’installer .exe</a><div class="download-links"><a href="https://github.com/GioOtto/ITA-OCR/releases/latest">Release e checksum</a><a href="https://github.com/GioOtto/ITA-OCR/blob/main/docs/it/INSTALLAZIONE.md">Guida all’installazione ↗</a></div><p class="fine-print">Richiede WebView2. Circa 2,1 GB installati, oppure 1 GB scegliendo l’installazione senza modelli. Pacchetto non firmato: controlla origine e checksum.</p></article>
+      <article class="download-card"><div class="card-label">02 / MODELLO FACOLTATIVO</div><h3>GLM-OCR, per l’italiano.</h3><p>Gli stessi due file GGUF che l’installer completo porta già con sé. Prendili qui se hai scelto l’installazione senza modelli, se usi la cartella portabile o se vuoi tenerli su un altro disco con <code>OCR_ITA_MODELS</code>.</p><a class="button outline" href="https://huggingface.co/ueuegio/ITA-OCR">Scarica i pesi su Hugging Face</a><div class="download-links"><a href="https://github.com/GioOtto/ITA-OCR/blob/main/docs/it/MODELLO.md">Guida al modello ↗</a><a href="https://github.com/GioOtto/ITA-OCR/blob/main/docs/assets/ITA-OCR-report-tecnico.pdf">Report tecnico (PDF) ↗</a></div><p class="fine-print">Il dataset rimane privato e non serve per usare l’app.</p></article></div>
       <p class="system-note">CPU oppure GPU compatibile con Vulkan o CUDA. Il backend dipende da hardware e driver. Questa release distribuisce solo Windows.</p>
     </div></section>
     <section class="section wrap research"><div><p class="eyebrow">UN PROGETTO APERTO</p><h2>Codice leggibile.<br>Limiti dichiarati.</h2><p>ITA-OCR combina Tauri, Rust e llama.cpp con un fine-tuning di GLM-OCR. Il codice originale è MIT; le dipendenze mantengono le proprie licenze.</p><div class="resource-links"><a href="https://github.com/GioOtto/ITA-OCR">Repository <span>↗</span></a><a href="https://github.com/GioOtto/ITA-OCR/blob/main/docs/assets/ITA-OCR-report-tecnico.pdf">Report tecnico (PDF) <span>↗</span></a><a href="https://github.com/GioOtto/ITA-OCR/blob/main/docs/it/BENCHMARKS.md">Valutazione e limiti <span>↗</span></a><a href="https://github.com/GioOtto/ITA-OCR/blob/main/docs/it/TERZE-PARTI.md">Licenze di terze parti <span>↗</span></a></div><p class="stella">Se ITA-OCR ti è stato utile o il progetto ti è piaciuto, puoi <a href="https://github.com/GioOtto/ITA-OCR">lasciare una stella su GitHub</a>: aiuta il progetto a farsi conoscere.</p></div><aside class="caveat"><span class="card-label">DA SAPERE</span><h3>L’AI aiuta.<br>La verifica resta essenziale.</h3><p>Il codice, parte della documentazione e gli asset grafici sono stati realizzati con il supporto di strumenti di intelligenza artificiale.</p><p>Il software può contenere errori. L’OCR può omettere o inventare testo: confronta sempre la trascrizione con il documento originale.</p><p class="fine-print">Nessuna garanzia di accuratezza universale. Esempi pubblici sintetici; dataset privato.</p></aside></section>

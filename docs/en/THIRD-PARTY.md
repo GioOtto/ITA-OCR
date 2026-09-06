@@ -21,6 +21,7 @@ respective parts. Full texts are in [licenses/](../../licenses).
 | English dictionary `en_US` | recognising terms to leave alone | SCOWL (permissive) |
 | Rust crates (494) | application dependencies | predominantly MIT or Apache-2.0 |
 | Visual C++ runtime | running on Windows | Microsoft redistribution terms |
+| [Inter](https://rsms.me/inter/) | typeface of the website | OFL-1.1 |
 
 ## Model
 
@@ -96,6 +97,15 @@ The `msvcp140.dll`, `vcruntime140.dll` and `vcruntime140_1.dll` libraries are
 Microsoft Visual C++ redistributables, shipped next to the executable under the
 Visual Studio redistribution terms. The **WebView2** runtime is not included:
 it is supplied by Microsoft and must be present on the system.
+
+## Website typeface
+
+The website uses **Inter**, distributed under the SIL Open Font License 1.1:
+the licence text is in [licenses/Inter-OFL-1.1.txt](../../licenses/Inter-OFL-1.1.txt).
+The font file is served by the website itself rather than by a third-party
+CDN, so opening the page does not send the visitor's IP address anywhere
+else. The typeface concerns the website only: the application uses system
+fonts.
 
 ## Not included
 
