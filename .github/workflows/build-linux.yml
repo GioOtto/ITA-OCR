@@ -1,0 +1,105 @@
+# Costruisce ITA-OCR per Linux.
+#
+# L'uscita e' un'AppImage: un file solo, eseguibile, che non si installa e non
+# tocca il sistema. Porta con se' il motore, i suoi backend e i dizionari, ma
+# non GTK/WebKitGTK/libsoup, che restano librerie della distribuzione.
+#
+# Il runner e' ubuntu-22.04 e non l'ultimo disponibile: glibc garantisce la
+# compatibilita' in avanti, non all'indietro, quindi un pacchetto compilato su
+# una distribuzione recente non parte su quelle piu' anziane. Compilando sulla
+# piu' vecchia che si vuole supportare il problema non si pone.
+#
+# I due GGUF (1,3 GB) restano fuori, come nella cartella portabile di Windows.
+
+name: Linux
+
+on:
+  workflow_dispatch:
+    inputs:
+      con_cuda:
+        description: "Compilare anche il backend CUDA (allunga la build di ~30 min)"
+        type: boolean
+        default: false
+  push:
+    tags: ["v*"]
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 150
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      # La cache vale piu' di tutto il resto: senza, ogni giro ricompila
+      # llama.cpp e mezzo albero di Tauri.
+      - name: Cache di cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ocr-desktop/app/src-tauri
+
+      - name: Dipendenze di sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build pkg-config curl file patchelf \
+            libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev libvulkan-dev
+
+      # Su qualche release di Ubuntu questi due non ci sono, o si chiamano in
+      # un altro modo. Non e' un errore: prepara.sh li estrae per conto suo.
+      - name: Compilatore di shader
+        continue-on-error: true
+        run: sudo apt-get install -y --no-install-recommends glslc spirv-headers
+
+      - name: CUDA Toolkit
+        if: inputs.con_cuda
+        uses: Jimver/cuda-toolkit@v0.2.19
+        with:
+          cuda: "12.6.0"
+          method: network
+          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust"]'
+
+      # pdfium, appimagetool, il runtime type2 e quello che dei precedenti
+      # manca ancora. Non installa niente nel sistema.
+      - name: Dipendenze binarie
+        run: bash ocr-desktop/scripts/prepara.sh
+
+      - name: Compila il motore e l'applicazione
+        run: bash ocr-desktop/scripts/costruisci.sh
+
+      - name: Assembla l'AppImage
+        run: bash ocr-desktop/scripts/impacchetta.sh
+
+      # Dice a chi scarica su che distribuzioni puo' funzionare, invece di
+      # lasciarglielo scoprire con un errore del linker dinamico.
+      - name: Glibc richiesta
+        run: |
+          binario=ocr-desktop/dist/ITA-OCR.AppDir/usr/bin/ocr-ita-desktop
+          echo "glibc minima: $(objdump -T "$binario" \
+            | grep -o 'GLIBC_[0-9.]*' | sort -Vu | tail -1)"
+          echo "--- contenuto ---"
+          find ocr-desktop/dist/ITA-OCR.AppDir -type f | sort
+          echo "--- checksum ---"
+          cat ocr-desktop/dist/*.AppImage.sha256
+
+      # Se qualcosa e' andato storto, i log servono piu' del pacchetto.
+      - name: Log di CMake in caso di fallimento
+        if: failure()
+        run: |
+          find ocr-desktop/build -name 'CMake*.log' -print -exec tail -200 {} \; \
+            2>/dev/null || true
+
+      - name: Pubblica l'artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ITA-OCR-linux-x86_64
+          path: |
+            ocr-desktop/dist/*.AppImage
+            ocr-desktop/dist/*.AppImage.sha256
+          retention-days: 14
+          compression-level: 0
