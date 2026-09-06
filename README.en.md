@@ -35,13 +35,17 @@ read directly, without going through the model.
 
 1. Download **ITA-OCR-setup_v1.0.0.exe** from the [Windows release](https://github.com/GioOtto/ITA-OCR/releases/latest).
 2. Install it into your user profile: no administrator privileges required.
-3. Download the **two GGUF files** listed in the [model guide](docs/en/MODEL.md) separately and place them in the `models` folder next to the application.
+3. Keep the complete installation, the default one: it already includes the models.
 4. Open ITA-OCR, import a document, run the transcription and compare it with the original.
 
-The installer ships the application, the engine and the public dictionaries.
-**The weights are distributed separately on Hugging Face; the dataset stays
-private.** For the full procedure, requirements and troubleshooting see the
-[Windows guide](docs/en/INSTALL.md).
+The complete installation ships everything you need — application, engine,
+runtime, public dictionaries and both GGUF weights — and asks for no further
+download. During setup you can pick a lighter installation **without the
+models**: in that case the weights come
+[from Hugging Face](https://huggingface.co/ueuegio/ITA-OCR), as they do for the
+portable folder or when you keep them on another drive with `OCR_ITA_MODELS`.
+**The training dataset stays private.** For the full procedure, requirements
+and troubleshooting see the [Windows guide](docs/en/INSTALL.md).
 
 ## What it does
 
@@ -199,3 +203,7 @@ See [THIRD-PARTY.md](docs/en/THIRD-PARTY.md) and [licenses/](licenses).
 Reports and proposals: [repository issues](https://github.com/GioOtto/ITA-OCR/issues).
 Direct contact: **giorgio.ottoboni@proton.me**.
 For vulnerabilities, follow [SECURITY.md](.github/SECURITY.md) first.
+
+If ITA-OCR was useful to you or you liked the project, consider leaving a
+[star on GitHub](https://github.com/GioOtto/ITA-OCR). It helps others discover
+the project.

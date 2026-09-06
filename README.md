@@ -34,13 +34,18 @@ essere letti direttamente, senza passare dal modello.
 ## Scarica e inizia
 
 1. Scarica **ITA-OCR-setup_v1.0.0.exe** dalla [release Windows](https://github.com/GioOtto/ITA-OCR/releases/latest).
-2. Installa l’app nel tuo profilo utente: non richiede privilegi di amministratore.
-3. Scarica separatamente i **due file GGUF** indicati nella [guida al modello](docs/it/MODELLO.md) e mettili nella cartella `models` accanto all’app.
+2. Installalo nel tuo profilo utente: non richiede privilegi di amministratore.
+3. Tieni l’installazione completa, quella predefinita: comprende già i modelli.
 4. Apri ITA-OCR, importa un documento, avvia la trascrizione e confrontala con l’originale.
 
-L’installer contiene applicazione, motore e dizionari pubblici. **I pesi sono
-distribuiti separatamente su Hugging Face; il dataset resta privato.** Per la
-procedura completa, i requisiti e la risoluzione dei problemi vedi la
+L’installazione completa contiene tutto quello che serve — applicazione, motore,
+runtime, dizionari pubblici e i due pesi GGUF — e non richiede altri download.
+Durante il setup puoi scegliere un’installazione **senza i modelli**, più
+leggera: in quel caso i pesi si prendono
+[su Hugging Face](https://huggingface.co/ueuegio/ITA-OCR), come per la cartella
+portabile o per tenerli su un altro disco con `OCR_ITA_MODELS`.
+**Il dataset di addestramento resta privato.** Per la procedura completa, i
+requisiti e la risoluzione dei problemi vedi la
 [guida Windows](docs/it/INSTALLAZIONE.md).
 
 ## Cosa puoi fare
@@ -201,3 +206,7 @@ Vedi [TERZE-PARTI.md](docs/it/TERZE-PARTI.md) e [licenses/](licenses).
 Segnalazioni e proposte: [issue del repository](https://github.com/GioOtto/ITA-OCR/issues).
 Per contatto diretto: **giorgio.ottoboni@proton.me**.
 Per le vulnerabilità segui prima [SECURITY.md](.github/SECURITY.md).
+
+Se ITA-OCR ti è stato utile o il progetto ti è piaciuto, puoi lasciare una
+[stella su GitHub](https://github.com/GioOtto/ITA-OCR): aiuta il progetto a
+farsi conoscere.

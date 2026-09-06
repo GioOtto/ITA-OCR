@@ -53,9 +53,31 @@ Inno richiede percorsi assoluti se il prompt e lo script hanno directory
 base diverse: usa `Resolve-Path` e passa i risultati, senza fissare lettere
 unità o profili utente negli script.
 
-L'installer pubblico include applicazione, runtime, dizionari e licenze.
-I pesi GGUF si scaricano separatamente da Hugging Face: [MODELLO.md](MODELLO.md).
-Il dataset e le risorse lessicali personali non fanno parte del pacchetto.
+Cosa finisce nell'installer lo decide la cartella passata a `SORGENTE`:
+`costruisci-windows.ps1` ci copia i due GGUF se li trova in `dist\models`, e
+`installer.iss` li mette nel componente `modelli`, incluso nell'installazione
+completa e assente da quella leggera. L'installer pubblicato per la v1.0.0 è
+costruito con i pesi dentro.
+
+La cartella portabile prodotta dalla CI, invece, li lascia fuori di proposito:
+li si aggiunge dopo, da Hugging Face, seguendo [MODELLO.md](MODELLO.md).
+
+Il dataset e le risorse lessicali personali non fanno parte di nessun pacchetto.
+
+### Cambiare versione
+
+La versione ha una sola fonte: il campo `version` di
+`ocr-desktop/app/src-tauri/tauri.conf.json`. Il nome dell'installer e
+l'etichetta sul sito ne sono copie. Dopo averla alzata:
+
+```powershell
+python scripts/verifica-pubblicazione.py
+```
+
+Lo script confronta le copie con il manifesto ed elenca quelle rimaste
+indietro, nome di file e riga. Serve perche' il bottone di download del sito
+punta all'installer per nome: se il nome resta vecchio, `releases/latest`
+risponde 404 e non se ne accorge nessuno.
 
 ## Icone
 

@@ -53,10 +53,31 @@ Inno needs absolute paths when the prompt and the script have different base
 directories: use `Resolve-Path` and pass the results, rather than hard-coding
 drive letters or user profiles in the scripts.
 
-The public installer ships the application, the runtime, the dictionaries and
-the licences. The GGUF weights are downloaded separately from Hugging Face:
-[MODEL.md](MODEL.md). The dataset and the private lexical resources are
-not part of the package.
+What ends up in the installer is decided by the folder passed as `SORGENTE`:
+`costruisci-windows.ps1` copies the two GGUF files in if it finds them in
+`dist\models`, and `installer.iss` puts them in the `modelli` component, which
+is part of the complete installation and absent from the lightweight one. The
+installer published for v1.0.0 is built with the weights inside.
+
+The portable folder produced by CI, on the other hand, deliberately leaves them
+out: they are added afterwards from Hugging Face, following [MODEL.md](MODEL.md).
+
+The dataset and the private lexical resources are part of no package.
+
+### Changing the version
+
+The version has a single source: the `version` field of
+`ocr-desktop/app/src-tauri/tauri.conf.json`. The installer filename and the
+label on the website are copies of it. After bumping it:
+
+```powershell
+python scripts/verifica-pubblicazione.py
+```
+
+The script compares the copies against the manifest and lists the ones left
+behind, with file and line. It matters because the site's download button
+points at the installer by name: if the name stays old, `releases/latest`
+answers 404 and nobody notices.
 
 ## Icons
 

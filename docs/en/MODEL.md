@@ -2,9 +2,14 @@
 
 *[Versione italiana](../it/MODELLO.md)*
 
-The weights are neither in the repository nor in the installer: they are two
-GGUF files totalling about 1.2 GB, beyond GitHub's per-file limit. They are
-downloaded from Hugging Face and placed next to the application.
+The weights are not in the repository: they are two GGUF files totalling about
+1.2 GB, beyond GitHub's per-file limit.
+
+**The complete Windows installation already contains them** and puts them in
+the right place: if that is the route you took, you do not need this guide. You
+need it if you chose the installation without the models, if you use the
+portable folder, or if you want to keep the weights elsewhere. In those cases
+they are downloaded from Hugging Face and placed next to the application.
 
 **Weights repository:** <https://huggingface.co/ueuegio/ITA-OCR>
 

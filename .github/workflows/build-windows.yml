@@ -26,7 +26,14 @@ env:
 
 jobs:
   windows:
-    runs-on: windows-latest
+    # Immagine bloccata a VS 2022. windows-latest (e windows-2025, che ne e'
+    # solo un alias) e' passata a Visual Studio 2026: nessun CUDA Toolkit
+    # uscito finora accetta quel compilatore host, perche' host_config.h
+    # rifiuta _MSC_VER >= 1950 e VS 2026 e' 1951. In piu' l'integrazione
+    # MSBuild del Toolkit non conosce la cartella di VS 18, da cui il
+    # "No CUDA toolset found" in fase di configure.
+    # Da sbloccare quando uscira' un CUDA che supporta VS 2026.
+    runs-on: windows-2022
     timeout-minutes: 120
 
     env:

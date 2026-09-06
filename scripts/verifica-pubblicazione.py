@@ -46,6 +46,26 @@ BINARI = {".png", ".jpg", ".jpeg", ".ico", ".gif", ".webp", ".pdf", ".woff",
 
 LIMITE_BYTE = 50 * 1024 * 1024
 
+# La versione ha una sola fonte: il manifesto di Tauri. Altrove compare dentro
+# il nome dell'installer e nell'etichetta del sito, e sono copie: se una resta
+# indietro il bottone "scarica" del sito punta a un file che nella release
+# nuova non esiste piu', e nessuno se ne accorge finche' non da' 404.
+MANIFESTO = Path("ocr-desktop/app/src-tauri/tauri.conf.json")
+VERSIONI = [
+    (re.compile(r"ITA-OCR-setup_v(\d+\.\d+\.\d+)"), "nome dell'installer"),
+    (re.compile(r'class="version">v(\d+\.\d+\.\d+)<'), "etichetta di versione del sito"),
+]
+
+
+def versione_dichiarata() -> str | None:
+    """La versione del manifesto, unica fonte di verita'."""
+    try:
+        testo = (RADICE / MANIFESTO).read_text(encoding="utf-8")
+    except OSError:
+        return None
+    trovata = re.search(r'"version"\s*:\s*"(\d+\.\d+\.\d+)"', testo)
+    return trovata.group(1) if trovata else None
+
 
 def elenco_file() -> list[str]:
     """I file che una pubblicazione porterebbe con se'."""
@@ -70,6 +90,9 @@ def link_locali(testo: str) -> list[str]:
 def main() -> int:
     problemi: list[str] = []
     file = elenco_file()
+    versione = versione_dichiarata()
+    if versione is None:
+        problemi.append(f"{MANIFESTO.as_posix()}: versione non leggibile")
 
     for nome in file:
         percorso = RADICE / nome
@@ -102,6 +125,14 @@ def main() -> int:
             for regola, motivo in VIETATI:
                 if regola.search(riga):
                     problemi.append(f"{nome}:{numero}: {motivo} -> {riga.strip()[:90]}")
+            if versione:
+                for regola, dove in VERSIONI:
+                    for citata in regola.findall(riga):
+                        if citata != versione:
+                            problemi.append(
+                                f"{nome}:{numero}: {dove} ferma a {citata}, "
+                                f"il manifesto dice {versione}"
+                            )
 
         if percorso.suffix == ".md":
             for destinazione in link_locali(testo):

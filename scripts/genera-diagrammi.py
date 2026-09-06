@@ -134,7 +134,7 @@ PRIVACY = {
     "it": dict(
         titolo="Dove restano i dati con ITA-OCR",
         descrizione=("Documenti, trascrizioni, archivio, modello e dizionari restano sul "
-                     "computer. La rete serve solo a scaricare applicazione e pesi. Nessuna "
+                     "computer. La rete serve solo a scaricare l'installer. Nessuna "
                      "telemetria, nessuna API OCR remota, nessun account."),
         dentro="IL TUO COMPUTER", fuori="RETE",
         elementi=[("Documenti e pagine", "aperti in locale, mai inviati"),
@@ -142,15 +142,15 @@ PRIVACY = {
                   ("Modello GGUF", "letto da disco a ogni avvio"),
                   ("Dizionari", "correzione lessicale locale"),
                   ("llama-server", "in ascolto su 127.0.0.1")],
-        ingressi=[("Installer", "GitHub · una volta"),
-                  ("Pesi del modello", "Hugging Face · una volta")],
+        ingressi=[("Installer completo", "GitHub · con i modelli"),
+                  ("Solo i pesi", "Hugging Face · opzionale")],
         senso="solo in entrata",
         piede="Nessuna telemetria · Nessuna API OCR remota · Nessun account · Funziona offline",
     ),
     "en": dict(
         titolo="Where the data stays with ITA-OCR",
         descrizione=("Documents, transcriptions, history, model and dictionaries stay on the "
-                     "machine. The network is only used to download the app and the weights. "
+                     "machine. The network is only used to download the installer. "
                      "No telemetry, no remote OCR API, no account."),
         dentro="YOUR MACHINE", fuori="NETWORK",
         elementi=[("Documents and pages", "opened locally, never uploaded"),
@@ -158,8 +158,8 @@ PRIVACY = {
                   ("GGUF model", "read from disk at start-up"),
                   ("Dictionaries", "local spelling correction"),
                   ("llama-server", "listening on 127.0.0.1")],
-        ingressi=[("Installer", "GitHub · once"),
-                  ("Model weights", "Hugging Face · once")],
+        ingressi=[("Complete installer", "GitHub · models included"),
+                  ("Weights alone", "Hugging Face · optional")],
         senso="inbound only",
         piede="No telemetry · No remote OCR API · No account · Works offline",
     ),
