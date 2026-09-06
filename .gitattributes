@@ -1,0 +1,19 @@
+# Gli script di build sono eseguiti da bash: con terminatori CRLF si fermano
+# sulla prima riga con un "set: pipefail: invalid option name" che non dice
+# quale sia il vero problema. E' gia' successo a comune.sh. Windows non ne ha
+# bisogno, Linux non li tollera: si normalizzano qui, una volta per tutte.
+*.sh text eol=lf
+*.py text eol=lf
+*.rs text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# Materiale di terze parti: si conserva come e' stato ricevuto.
+licenses/** -text
+ocr-desktop/resources/dictionaries/** -text
+ocr-desktop/app/ui/vendor/** -text

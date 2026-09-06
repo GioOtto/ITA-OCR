@@ -51,6 +51,7 @@ cmake -S "$LLAMA_SORGENTE" -B "$BUILD_LLAMA" \
   -DVulkan_INCLUDE_DIR="$VULKAN_HEADERS" \
   -DVulkan_LIBRARY="${VULKAN_LIBRARY:-/usr/lib/x86_64-linux-gnu/libvulkan.so.1}" \
   ${SPIRV_HEADERS_DIR:+-DSPIRV-Headers_DIR="$SPIRV_HEADERS_DIR"} \
+  ${SPIRV_HEADERS_INCLUDE:+-DCMAKE_CXX_FLAGS="-isystem $SPIRV_HEADERS_INCLUDE"} \
   ${GLSLC:+-DVulkan_GLSLC_EXECUTABLE="$GLSLC"}
 cmake --build "$BUILD_LLAMA" -j "$(nproc)"
 

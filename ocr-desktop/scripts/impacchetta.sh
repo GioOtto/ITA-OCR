@@ -128,9 +128,11 @@ if [ -x "$APPIMAGETOOL" ]; then
   # non c'e' piu': si usa il runtime type2 moderno, che linka fuse3 staticamente.
   RUNTIME="$RADICE/thirdparty/runtime-x86_64"
   ARCH=x86_64 "$APPIMAGETOOL" --appimage-extract-and-run --no-appstream \
-    ${RUNTIME:+--runtime-file "$RUNTIME"} "$APPDIR" "$DIST/ITA-OCR-x86_64.AppImage"
-  chmod +x "$DIST/ITA-OCR-x86_64.AppImage"
-  ls -lh "$DIST/ITA-OCR-x86_64.AppImage"
+    ${RUNTIME:+--runtime-file "$RUNTIME"} "$APPDIR" "$DIST/$APPIMAGE_NOME"
+  chmod +x "$DIST/$APPIMAGE_NOME"
+  ls -lh "$DIST/$APPIMAGE_NOME"
+  ( cd "$DIST" && sha256sum "$APPIMAGE_NOME" > "$APPIMAGE_NOME.sha256" )
+  cat "$DIST/$APPIMAGE_NOME.sha256"
 else
   echo "appimagetool assente: resta la cartella portabile" >&2
 fi

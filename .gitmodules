@@ -1,3 +1,6 @@
 [submodule "ocr-ita/vendor/llama.cpp"]
 	path = ocr-ita/vendor/llama.cpp
 	url = https://github.com/ggml-org/llama.cpp.git
+[submodule "ocr-ita/vendor/Vulkan-Headers"]
+	path = ocr-ita/vendor/Vulkan-Headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers.git

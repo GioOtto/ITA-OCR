@@ -5,6 +5,14 @@ ocr-desktop/build/
 ocr-desktop/dist/
 **/target/
 
+# Dipendenze binarie di terze parti che prepara.sh scarica per la build Linux:
+# pdfium, appimagetool, il runtime type2, glslc e il sysroot GTK/WebKit.
+ocr-desktop/thirdparty/
+
+# I pesi che gli script di build si aspettano in ocr-ita/models/gguf/: la
+# cartella e' locale, come thirdparty/.
+ocr-ita/models/
+
 # I modelli GLM-OCR stanno fuori dal repo: 1,2 GB in due GGUF, oltre il
 # limite per file di GitHub. Si distribuiscono con l'installer, oppure si
 # indicano all'applicazione con la variabile OCR_ITA_MODELS.

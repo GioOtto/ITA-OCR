@@ -53,6 +53,7 @@ LIMITE_BYTE = 50 * 1024 * 1024
 MANIFESTO = Path("ocr-desktop/app/src-tauri/tauri.conf.json")
 VERSIONI = [
     (re.compile(r"ITA-OCR-setup_v(\d+\.\d+\.\d+)"), "nome dell'installer"),
+    (re.compile(r"ITA-OCR-v(\d+\.\d+\.\d+)-x86_64\.AppImage"), "nome dell'AppImage"),
     (re.compile(r'class="version">v(\d+\.\d+\.\d+)<'), "etichetta di versione del sito"),
 ]
 
