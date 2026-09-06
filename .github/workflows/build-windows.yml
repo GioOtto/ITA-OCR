@@ -1,0 +1,207 @@
+# Costruisce ITA-OCR per Windows.
+#
+# Da Linux un .exe non e' producibile: Tauri non cross-compila verso Windows e
+# nvcc genera codice solo per il sistema su cui gira. L'unica strada e' una
+# macchina Windows, e questo workflow ne noleggia una.
+#
+# L'artifact e' una cartella portabile, non un installer: si scompatta e si
+# avvia, senza toccare il registro di sistema. I due GGUF (1,2 GB) restano
+# fuori, come nell'AppImage di Linux.
+
+name: Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      con_cuda:
+        description: "Compilare il backend CUDA (allunga la build di ~15 min)"
+        type: boolean
+        default: true
+  push:
+    tags: ["v*"]
+
+env:
+  # Lo stesso commit verificato che usa la build di Linux.
+  COMMIT_LLAMA: 4df29be
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust (toolchain MSVC)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      # La cache vale piu' di tutto il resto: senza, ogni giro ricompila
+      # llama.cpp e mezzo albero di Tauri.
+      - name: Cache di cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ocr-desktop/app/src-tauri
+
+      - name: CUDA Toolkit
+        if: inputs.con_cuda != false
+        uses: Jimver/cuda-toolkit@v0.2.19
+        with:
+          cuda: "12.6.0"
+          method: network
+          # Solo quello che serve a compilare: l'installazione completa e' enorme.
+          sub-packages: '["nvcc", "cudart", "cublas", "cublas_dev", "thrust", "visual_studio_integration"]'
+
+      - name: Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
+        with:
+          vulkan-query-version: latest
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
+      - name: Sorgenti di llama.cpp
+        shell: pwsh
+        run: |
+          git clone https://github.com/ggml-org/llama.cpp.git llama.cpp
+          cd llama.cpp
+          git checkout $env:COMMIT_LLAMA
+
+      - name: Compila llama.cpp
+        shell: pwsh
+        run: |
+          $cuda = if ("${{ inputs.con_cuda }}" -eq "false") { "OFF" } else { "ON" }
+          Write-Host "CUDA: $cuda"
+          $extra = @()
+          if ($cuda -eq "ON") {
+            # "-real" e' codice macchina pronto, "-virtual" e' solo PTX che il
+            # driver compila al primo avvio. Il PTX del Toolkit 12.9 pretende un
+            # driver r575+, mentre il runtime CUDA 12.x ne accetta di ben piu'
+            # vecchi: su una macchina aggiornata a meta' si ottiene "the provided
+            # PTX was compiled with an unsupported toolchain" e il ripiego
+            # silenzioso su Vulkan. Il default di llama.cpp lascia virtuali
+            # Pascal, Turing e Ampere datacenter, cioe' GTX 10xx/16xx e RTX 20xx.
+            $v = [version]"12.0"
+            $r = (nvcc --version | Select-String -Pattern "release (\d+\.\d+)" | Select-Object -First 1)
+            if ($r) { $v = [version]$r.Matches[0].Groups[1].Value }
+            $archi = @("75-real", "80-real", "86-real", "89-real", "90-virtual")
+            # Maxwell e' il minimo di CUDA 12; in CUDA 13 spariscono Pascal e Volta.
+            if ($v -lt [version]"13.0") { $archi = @("50-virtual", "61-real", "70-virtual") + $archi }
+            # Blackwell: 12.8 conosce sm_120, 12.9 anche sm_121.
+            if ($v -ge [version]"12.8") { $archi += "120a-real" }
+            if ($v -ge [version]"12.9") { $archi += "121a-real" }
+            Write-Host "architetture: $($archi -join ' ')"
+            $extra += "-DCMAKE_CUDA_ARCHITECTURES=$($archi -join ';')"
+          }
+          cmake -S llama.cpp -B build-llama `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DGGML_NATIVE=OFF `
+            -DBUILD_SHARED_LIBS=ON `
+            -DGGML_BACKEND_DL=ON `
+            -DGGML_CPU_ALL_VARIANTS=ON `
+            -DGGML_VULKAN=ON `
+            -DGGML_HIP=OFF `
+            -DGGML_CUDA=$cuda `
+            -DLLAMA_BUILD_TESTS=OFF `
+            -DLLAMA_BUILD_EXAMPLES=OFF `
+            -DLLAMA_BUILD_TOOLS=ON `
+            -DLLAMA_BUILD_SERVER=ON `
+            -DLLAMA_CURL=OFF `
+            -DLLAMA_OPENSSL=OFF `
+            @extra
+          cmake --build build-llama --config Release -j $env:NUMBER_OF_PROCESSORS
+
+      - name: Compila l'applicazione
+        shell: pwsh
+        working-directory: ocr-desktop/app/src-tauri
+        run: cargo build --release
+
+      - name: Assembla la cartella portabile
+        shell: pwsh
+        run: |
+          $uscita = "ITA-OCR-windows"
+          New-Item -ItemType Directory -Force -Path "$uscita\llama" | Out-Null
+
+          $bin = "build-llama\bin\Release"
+          if (-not (Test-Path $bin)) { $bin = "build-llama\bin" }
+          Copy-Item "$bin\llama-server.exe" "$uscita\llama\"
+          Get-ChildItem $bin -Filter *.dll | Copy-Item -Destination "$uscita\llama\"
+
+          # ggml-cuda.dll importa cudart e cuBLAS dal Toolkit, non dal driver.
+          # Senza, sulla macchina di destinazione non si carica e il motore
+          # ripiega su Vulkan in silenzio: CUDA sembrerebbe rotto per un file
+          # mancante. L'Attachment A dell'EULA CUDA li dichiara redistribuibili.
+          if (Test-Path "$uscita\llama\ggml-cuda.dll") {
+            $binCuda = Join-Path $env:CUDA_PATH "bin"
+            foreach ($schema in @("cudart64_*.dll", "cublas64_*.dll", "cublasLt64_*.dll")) {
+              $trovate = Get-ChildItem -Path $binCuda -Filter $schema -ErrorAction SilentlyContinue
+              if (-not $trovate) { throw "runtime CUDA incompleto: manca $schema in $binCuda" }
+              $trovate | Copy-Item -Destination "$uscita\llama\"
+            }
+          }
+
+          Copy-Item "ocr-desktop\app\src-tauri\target\release\ocr-ita-desktop.exe" $uscita
+
+          # Runtime C++ accanto agli eseguibili (deployment app-local): senza,
+          # la cartella parte solo dove il VC++ Redistributable e' gia'
+          # installato, e non sarebbe piu' "si copia e si avvia".
+          $crt = Get-ChildItem "$env:VCToolsRedistDir\x64\Microsoft.VC*.CRT" -Directory | Select-Object -Last 1
+          if (-not $crt) { throw "redistributable MSVC non trovato" }
+          foreach ($dll in @("msvcp140.dll","vcruntime140.dll","vcruntime140_1.dll")) {
+            Copy-Item (Join-Path $crt.FullName $dll) $uscita
+            Copy-Item (Join-Path $crt.FullName $dll) "$uscita\llama\"
+          }
+
+          # I dizionari della post-correzione: l'app li cerca accanto a se stessa.
+          # L'inglese non corregge niente, serve solo a riconoscere le parole
+          # inglesi e lasciarle intatte.
+          New-Item -ItemType Directory -Force -Path "$uscita\dictionaries\it_IT" | Out-Null
+          Copy-Item "ocr-desktop\resources\dictionaries\it_IT\*" "$uscita\dictionaries\it_IT\"
+          New-Item -ItemType Directory -Force -Path "$uscita\dictionaries\en_US" | Out-Null
+          Copy-Item "ocr-desktop\resources\dictionaries\en_US\*" "$uscita\dictionaries\en_US\"
+
+          # PDFium ufficiale, non ricompilata.
+          $url = "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-win-x64.tgz"
+          Invoke-WebRequest -Uri $url -OutFile pdfium.tgz
+          New-Item -ItemType Directory -Force -Path pdfium-tmp | Out-Null
+          tar -xzf pdfium.tgz -C pdfium-tmp
+          Copy-Item "pdfium-tmp\bin\pdfium.dll" $uscita
+
+          New-Item -ItemType Directory -Force -Path "$uscita\models" | Out-Null
+          @"
+          I due GGUF non stanno nell'artifact: pesano 1,2 GB insieme.
+          Copiare qui dentro:
+            glm-ocr-ocr-ita-v8-native-3ep-clean-q8_0.gguf
+            glm-ocr-base-mmproj-q8_0.gguf
+          Oppure puntare OCR_ITA_MODELS alla cartella che li contiene.
+          "@ | Set-Content "$uscita\models\LEGGIMI.txt"
+
+          @"
+          @echo off
+          set "QUI=%~dp0"
+          set "OCR_ITA_RESOURCES=%QUI%"
+          if not defined OCR_ITA_MODELS set "OCR_ITA_MODELS=%QUI%models"
+          start "" "%QUI%ocr-ita-desktop.exe" %*
+          "@ | Set-Content "$uscita\ITA-OCR.cmd" -Encoding ASCII
+
+          Write-Host "Contenuto:"
+          Get-ChildItem -Recurse $uscita | Select-Object FullName, Length | Format-Table
+
+      # Se qualcosa e' andato storto, i log servono piu' del pacchetto.
+      - name: Log di CMake in caso di fallimento
+        if: failure()
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse -Path build-llama -Include *.log,CMakeError.log,CMakeOutput.log `
+            -ErrorAction SilentlyContinue | ForEach-Object {
+              Write-Host "===== $($_.FullName) ====="
+              Get-Content $_.FullName -Tail 200
+            }
+
+      - name: Pubblica l'artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ITA-OCR-windows
+          path: ITA-OCR-windows/
+          retention-days: 14
+          compression-level: 6

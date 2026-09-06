@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="it" data-tema="chiaro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ITA-OCR 1.0.0</title>
+    <link rel="stylesheet" href="vendor/katex/katex.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="vuoto">
+    <!-- Le icone stanno tutte qui e si richiamano con <use>: un solo posto da
+         toccare per cambiarle, e nessuna richiesta di rete (la CSP la vieterebbe). -->
+    <svg hidden aria-hidden="true">
+      <defs>
+        <g id="i-scansione" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 8V5.5A2.5 2.5 0 0 1 5.5 3H8M16 3h2.5A2.5 2.5 0 0 1 21 5.5V8M21 16v2.5a2.5 2.5 0 0 1-2.5 2.5H16M8 21H5.5A2.5 2.5 0 0 1 3 18.5V16" />
+          <path d="M7 12h10" />
+        </g>
+        <g id="i-ingranaggio" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+        </g>
+        <g id="i-piu" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round"><path d="M12 5v14M5 12h14" /></g>
+        <g id="i-cestino" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h16M10 4h4M6 7l1 13h10l1-13M10 11v6M14 11v6" />
+        </g>
+        <g id="i-copia" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="12" height="12" rx="2" />
+          <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
+        </g>
+        <g id="i-esporta" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+        </g>
+        <g id="i-avvia" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5l12 7.5-12 7.5Z" /></g>
+        <g id="i-ferma" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2" /></g>
+        <g id="i-lucchetto" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4.5" y="10" width="15" height="10" rx="2" />
+          <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+        </g>
+        <g id="i-carica" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21V9M8 13l4-4 4 4" />
+          <path d="M5 7a5 5 0 0 1 9.6-1.9A4 4 0 1 1 17 13" />
+        </g>
+        <g id="i-info" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" />
+        </g>
+        <g id="i-allarme" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.3 4.3 2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z" />
+          <path d="M12 9.5v4M12 17h.01" />
+        </g>
+        <g id="i-chip" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <rect x="7" y="7" width="10" height="10" rx="1.5" />
+          <path d="M4 10h3M4 14h3M17 10h3M17 14h3M10 4v3M14 4v3M10 17v3M14 17v3" />
+        </g>
+        <g id="i-flusso" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" />
+          <path d="M6 8.5V14a4 4 0 0 0 4 4h5.5" />
+        </g>
+        <g id="i-orologio" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" /><path d="M12 7v5.2l3.2 1.9" />
+        </g>
+        <g id="i-terminale" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 9l3 3-3 3M13 15h4" />
+        </g>
+        <g id="i-cartella" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4L11 8.5h8.5A1.5 1.5 0 0 1 21 10v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18Z" />
+        </g>
+        <g id="i-riavvia" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 12a8 8 0 1 1-2.6-5.9" /><path d="M20 4v4.5h-4.5" />
+        </g>
+        <g id="i-chiudi" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></g>
+        <g id="i-fianco" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="16" rx="2" /><path d="M10 4v16" />
+        </g>
+        <g id="i-archivio" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8h16v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19Z" />
+          <rect x="2.5" y="3.5" width="19" height="4.5" rx="1.2" />
+          <path d="M10 12h4" />
+        </g>
+        <g id="i-scollegato" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v6M5.6 5.6l4.3 4.3M3 12h6M18.4 5.6l-4.3 4.3M21 12h-6" />
+          <path d="M4 20 20 4" stroke-width="1.9" />
+        </g>
+      </defs>
+      <defs>
+        <g id="i-cerca" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></g>
+        <g id="i-freccia" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16m-6-6 6 6-6 6"/></g>
+        <g id="i-sinistra" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></g>
+        <g id="i-destra" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m10 6 6 6-6 6"/></g>
+        <g id="i-testo" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 5h14M12 5v14M8 19h8"/></g>
+        <g id="i-giu" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></g>
+      </defs>
+    </svg>
+
+    <div class="guscio">
+    <aside class="fianco" id="fianco" aria-label="Documenti">
+      <div class="testa-fianco">
+        <span class="glifo" aria-hidden="true"></span>
+        <div class="nome-app">
+          <h1>ITA-OCR <span class="versione">1.0.0</span></h1>
+        </div>
+      </div>
+
+      <div class="azioni-fianco">
+        <button id="nuovo-ocr" class="bottone primario largo" type="button"
+                title="Archivia il lavoro corrente e riparte da zero">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-piu" /></svg>
+          Nuova trascrizione
+        </button>
+      </div>
+
+      <nav class="archivio" aria-label="Documenti salvati">
+        <div class="testa-archivio">
+          <h2 class="occhiello">Archivio</h2>
+          <span id="conteggio-archivio" class="conteggio"></span>
+        </div>
+        <div class="cassetta-archivio">
+          <label class="ricerca-archivio">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-cerca" /></svg>
+            <input id="cerca-archivio" type="search" placeholder="Cerca una trascrizione" aria-label="Cerca nell'archivio" autocomplete="off" />
+          </label>
+          <div class="scorri-archivio">
+            <ul id="elenco-archivio" class="elenco-archivio"></ul>
+            <p id="archivio-vuoto" class="archivio-vuoto">
+              Nessuna trascrizione salvata.
+            </p>
+            <p id="archivio-nessun-risultato" class="archivio-vuoto" role="status" hidden>Nessuna trascrizione trovata.</p>
+          </div>
+        </div>
+      </nav>
+
+      <div class="pie-fianco">
+        <span class="occhiello" id="etichetta-tema">Tema</span>
+        <div class="segmenti" id="scelta-tema" role="group" aria-labelledby="etichetta-tema">
+          <button type="button" data-tema="auto" aria-pressed="false">Auto</button>
+          <button type="button" data-tema="chiaro" class="attivo" aria-pressed="true">Chiaro</button>
+          <button type="button" data-tema="scuro" aria-pressed="false">Scuro</button>
+        </div>
+        <button id="apri-informazioni" class="firma" type="button"
+                title="Informazioni, privacy e codice sorgente">
+          Informazioni su <strong>ITA-OCR</strong>
+        </button>
+      </div>
+    </aside>
+
+    <div class="principale">
+    <header class="barra">
+      <button id="mostra-fianco" class="bottone fantasma solo-icona" type="button"
+              aria-expanded="true" aria-controls="fianco"
+              title="Mostra o nascondi il pannello dei documenti">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-fianco" /></svg>
+      </button>
+      <div class="titolo-sessione">
+        <span id="nome-sessione">Nuova trascrizione</span>
+      </div>
+      <div class="riempi"></div>
+      <div class="barra-destra">
+        <button id="stato-motore" class="pillola" type="button" aria-controls="pannello-avanzate" aria-expanded="false" title="Stato del motore">
+          <span class="spia" id="spia-motore"></span>
+          <span id="etichetta-motore">Avvio del motore…</span>
+        </button>
+        <button id="apri-avanzate" class="bottone fantasma" type="button"
+                aria-expanded="false" aria-controls="pannello-avanzate">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ingranaggio" /></svg>
+          Impostazioni
+        </button>
+      </div>
+    </header>
+
+    <main class="corpo">
+      <div id="zona-vuota" class="zona-vuota">
+          <section class="riquadro-drop" id="riquadro-drop" aria-labelledby="titolo-importa">
+            <div class="icona-importa" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-scansione" /></svg></div>
+            <h2 id="titolo-importa">Importa un documento</h2>
+            <p>Trascina qui PDF o immagini.</p>
+            <button id="scegli-file" class="bottone primario" type="button" title="Importa documenti">
+              Scegli i documenti
+            </button>
+            <p id="stato-importazione" class="stato-importazione" role="status" hidden></p>
+            <div class="dettagli-importa">
+              <span class="formati" aria-label="Formati accettati">PDF, PNG, JPG, TIFF, BMP, WebP, GIF</span>
+              <p class="avviso-minuto">Le trascrizioni sono generate da un modello di intelligenza artificiale e vanno verificate.</p>
+            </div>
+          </section>
+      </div>
+
+      <div id="strumenti-lavoro" class="strumenti-lavoro" hidden>
+        <div class="azioni-documento" role="group" aria-label="Documenti della trascrizione">
+          <button id="aggiungi-altri" class="bottone minuscolo" type="button" title="Aggiungi documenti">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-piu" /></svg>Aggiungi
+          </button>
+          <button id="svuota" class="bottone minuscolo fantasma" type="button" title="Rimuovi i documenti dall'area di lavoro">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-cestino" /></svg>Svuota
+          </button>
+        </div>
+        <div class="navigazione-pagine" role="group" aria-label="Navigazione pagine">
+          <button id="pagina-precedente" class="bottone fantasma solo-icona minuscolo" type="button" aria-label="Pagina precedente" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-sinistra" /></svg></button>
+          <span id="posizione-pagina" aria-live="polite">0 / 0</span>
+          <button id="pagina-successiva" class="bottone fantasma solo-icona minuscolo" type="button" aria-label="Pagina successiva" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-destra" /></svg></button>
+        </div>
+        <div class="segmenti scelta-vista" id="scelta-vista" role="group" aria-label="Vista del documento">
+          <button type="button" data-vista="confronto" class="attivo" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-fianco" /></svg>Confronto</button>
+          <button type="button" data-vista="testo" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-testo" /></svg>Solo testo</button>
+        </div>
+      </div>
+      <div id="area-lavoro" class="area-lavoro" hidden>
+        <section class="riquadro riquadro-documento" id="colonna-documento">
+          <header class="testa-riquadro">
+            <h2 class="titolo-riquadro">Originale</h2>
+            <span id="nota-pagina" class="nota-riquadro"></span>
+          </header>
+          <div id="scorri-documento" class="scorri-documento" tabindex="0" aria-label="Pagine del documento originale"></div>
+        </section>
+
+        <div id="divisore" class="divisore" role="separator" tabindex="0"
+             aria-orientation="vertical" aria-controls="colonna-documento"
+             aria-label="Larghezza della colonna del documento"
+             aria-valuemin="20" aria-valuemax="75" aria-valuenow="46"
+             title="Trascina per ridimensionare · doppio clic per ripristinare"></div>
+
+        <section class="riquadro riquadro-testo">
+          <header class="testa-riquadro testa-trascrizione">
+            <h2 class="titolo-riquadro">Trascrizione</h2>
+            <span id="nota-testo" class="nota-riquadro"></span>
+            <div class="chip-correzione" id="chip-dizionario">
+              <label class="flag-correzione">
+                <input type="checkbox" id="correzione-automatica" checked
+                       aria-describedby="spiegazione-dizionario" />
+                <span>Dizionario</span>
+                <span class="contatore-flag" id="conteggio-dizionario"></span>
+              </label>
+              <span class="spiegazione" id="spiegazione-dizionario" role="tooltip">Sostituisce
+                le parole che il dizionario italiano riconosce con certezza, e le lascia
+                sottolineate nel testo: passaci sopra per leggere l'originale. Toglila per
+                vedere le pagine esattamente come le ha lette il modello.</span>
+            </div>
+              <div class="azioni-elaborazione">
+                <button id="avvia" class="bottone primario" type="button" disabled title="Avvia la trascrizione (Ctrl+Invio)">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-avvia" /></svg>
+                  <span id="etichetta-avvia">Trascrivi</span>
+                </button>
+                <button id="interrompi" class="bottone pericolo" type="button" hidden title="Interrompi (Esc)">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-ferma" /></svg>Interrompi
+                </button>
+              </div>
+          </header>
+          <div id="testo-ocr" class="testo-continuo lettura" tabindex="0" aria-label="Testo trascritto"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="pie">
+      <div class="progresso">
+        <div class="barra-progresso" id="barra-progresso" role="progressbar"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+             aria-label="Avanzamento della trascrizione">
+          <span id="riempimento"></span>
+        </div>
+        <div class="riga-progresso">
+          <span id="testo-progresso" role="status"></span>
+        </div>
+        <p class="avviso-modello">La trascrizione è prodotta da un modello di
+          intelligenza artificiale e può contenere errori: confrontala con
+          l'originale.</p>
+      </div>
+      <div class="azioni">
+        <button id="copia" class="bottone grande" type="button" disabled
+                title="Copia la trascrizione, o la sola selezione">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-copia" /></svg>
+          Copia
+        </button>
+        <div class="menu-uscite">
+          <button id="apri-esporta" class="bottone grande" type="button" disabled
+                  aria-haspopup="menu" aria-expanded="false" aria-controls="voci-esporta"
+                  title="Salva la trascrizione su file">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-esporta" /></svg>
+            Esporta
+            <svg class="freccetta" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-giu" /></svg>
+          </button>
+          <div id="voci-esporta" class="voci-menu" role="menu" aria-labelledby="apri-esporta" hidden>
+            <button id="esporta-docx" class="voce-menu" type="button" role="menuitem">
+              Documento Word <span class="minuta">.docx</span>
+            </button>
+            <button id="esporta-md" class="voce-menu" type="button" role="menuitem">
+              Markdown <span class="minuta">.md</span>
+            </button>
+            <button id="esporta-txt" class="voce-menu" type="button" role="menuitem">
+              Testo semplice <span class="minuta">.txt</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </footer>
+    </div>
+    </div>
+
+    <div id="velo" class="velo" hidden></div>
+    <aside id="pannello-avanzate" class="cassetto" hidden role="dialog" aria-modal="true"
+           aria-label="Impostazioni">
+      <div class="testa-cassetto">
+        <h2>Impostazioni</h2>
+        <div class="riempi"></div>
+        <button id="chiudi-avanzate" class="bottone minuscolo fantasma" type="button"
+                aria-label="Chiudi le impostazioni">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chiudi" /></svg>
+          Chiudi
+        </button>
+      </div>
+      <div class="contenuto-cassetto">
+        <section>
+          <div class="testa-sezione"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-testo" /></svg><h3>Lettura</h3></div>
+          <label class="interruttore">
+            <input type="checkbox" id="latex-grezzo" />
+            <span class="leva" aria-hidden="true"></span>
+            <span>Mostra il LaTeX grezzo invece delle formule composte</span>
+          </label>
+          <div class="campo">
+            <span id="etichetta-carattere">Carattere della trascrizione</span>
+            <div class="segmenti" id="scelta-carattere" role="group"
+                 aria-labelledby="etichetta-carattere">
+              <button type="button" class="attivo" data-carattere="lettura"
+                      aria-pressed="true">Standard</button>
+              <button type="button" data-carattere="mono"
+                      aria-pressed="false">Monospazio</button>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="testa-sezione">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chip" /></svg>
+            <h3>Motore</h3>
+          </div>
+          <label class="campo">
+            <span>Elaborazione</span>
+            <select id="scelta-backend">
+              <option value="auto">Automatico (CUDA, Vulkan, poi CPU)</option>
+              <option value="cuda">Solo CUDA (NVIDIA)</option>
+              <option value="vulkan">Solo Vulkan (AMD, Intel)</option>
+              <option value="cpu">Solo CPU</option>
+            </select>
+          </label>
+          <button id="riavvia-motore" class="bottone fantasma largo" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-riavvia" /></svg>
+            Riavvia il motore
+          </button>
+          <details class="details-tecnici"><summary>Dettagli del motore</summary><dl id="dettagli-motore" class="dettagli"></dl></details>
+        </section>
+
+        <section>
+          <div class="testa-sezione">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-flusso" /></svg>
+            <h3>Riconoscimento</h3>
+          </div>
+          <label class="interruttore">
+            <input type="checkbox" id="forza-ocr" />
+            <span class="leva" aria-hidden="true"></span>
+            <span>Rileggi anche i PDF che contengono già testo</span>
+          </label>
+          <label class="interruttore">
+            <input type="checkbox" id="correzione-contestuale" />
+            <span class="leva" aria-hidden="true"></span>
+            <span>Correggi anche le parole ambigue usando le parole vicine
+              <span class="minuta">Richiede un lessico contestuale locale aggiuntivo, non incluso. Le sostituzioni restano sottolineate.</span>
+            </span>
+          </label>
+          <details class="details-tecnici"><summary>Parametri di riconoscimento</summary><dl id="dettagli-pipeline" class="dettagli"></dl></details>
+        </section>
+
+        <section>
+          <div class="testa-sezione">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-orologio" /></svg>
+            <h3>Tempi per pagina</h3>
+          </div>
+          <div id="tempi" class="tempi"></div>
+        </section>
+
+        <section>
+          <div class="testa-sezione">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-terminale" /></svg>
+            <h3>Diagnostica</h3>
+          </div>
+          <button id="apri-log" class="bottone fantasma largo" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-cartella" /></svg>
+            Apri la cartella dei log
+          </button>
+          <pre id="log" class="log"></pre>
+        </section>
+
+        <section id="informazioni">
+          <div class="testa-sezione">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-info" /></svg>
+            <h3>Informazioni</h3>
+          </div>
+          <p class="minuta">Il codice ? stato sviluppato con il supporto di strumenti di intelligenza artificiale. Pu? contenere errori; verifica sempre le trascrizioni.</p>
+          <p class="riga-firma">
+            ITA-OCR <strong>1.0.0</strong> · codice sorgente MIT
+          </p>
+          <p class="minuta">
+            La trascrizione è prodotta da un modello di intelligenza artificiale
+            e può contenere errori anche dove il testo sembra scorrevole:
+            rileggila e confrontala con l'originale prima di usarla, soprattutto
+            per cifre, nomi e date. La decisione su cosa è corretto resta tua.
+          </p>
+          <p class="minuta">
+            I documenti non escono da questo computer: il riconoscimento gira in
+            locale, l'applicazione non manda niente su internet e non raccoglie
+            dati d'uso né statistiche. Trascrizioni e registri stanno in
+            <code>%APPDATA%\ocr-ita-desktop</code>; eliminare una trascrizione
+            dall'archivio ne cancella il file dal disco.
+          </p>
+          <div class="riga-repo">
+            <span class="etichetta-repo">Codice sorgente e segnalazioni</span>
+            <button id="indirizzo-repo" type="button"
+                    title="Apri la pagina nel browser">https://github.com/GioOtto/ITA-OCR</button>
+            <button id="copia-repo" class="bottone minuscolo" type="button"
+                    title="Copia l'indirizzo negli appunti">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-copia" /></svg>
+              Copia
+            </button>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <!-- Bersaglio a tutta finestra: compare solo quando si trascina sopra un
+         documento gia' aperto, dove il riquadro tratteggiato non c'e' piu'. -->
+    <div class="velo-trascina" aria-hidden="true">
+      <div class="bersaglio-trascina">
+        <svg viewBox="0 0 24 24"><use href="#i-carica" /></svg>
+        Lascia i file per aggiungerli
+      </div>
+    </div>
+
+    <div id="brindisi" class="brindisi" role="status" aria-live="polite" hidden></div>
+
+    <script src="vendor/katex/katex.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

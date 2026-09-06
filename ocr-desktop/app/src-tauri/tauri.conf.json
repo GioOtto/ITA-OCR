@@ -1,0 +1,34 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ITA-OCR",
+  "version": "1.0.0",
+  "identifier": "it.ocrita.desktop",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "ITA-OCR 1.0.0",
+        "width": 1380,
+        "height": 920,
+        "minWidth": 940,
+        "minHeight": 620,
+        "dragDropEnabled": true,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: asset: http://asset.localhost; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": [],
+    "icon": ["icons/icon.ico", "icons/icon.png"],
+    "category": "Office",
+    "shortDescription": "OCR locale di manoscritti italiani",
+    "longDescription": "Trascrizione di manoscritti italiani con GLM-OCR fine-tunato, interamente in locale su llama.cpp."
+  }
+}
