@@ -156,7 +156,7 @@ The final set was consulted several times during development: the measurements
 are descriptive, not an independent benchmark. Full method and limits in
 [BENCHMARKS.md](docs/en/BENCHMARKS.md).
 
-## 📄 The technical report
+## The technical report
 
 > ### [**Teaching a Vision Model When to Stop**](docs/assets/ITA-OCR-report-tecnico.pdf)
 >

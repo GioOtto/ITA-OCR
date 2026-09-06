@@ -157,7 +157,7 @@ universale di accuratezza. Il set finale è stato consultato più volte durante 
 sviluppo: le misure sono descrittive, non un benchmark indipendente. Metodo
 completo e limiti in [BENCHMARKS.md](docs/it/BENCHMARKS.md).
 
-## 📄 Il report tecnico
+## Il report tecnico
 
 > ### [**Teaching a Vision Model When to Stop**](docs/assets/ITA-OCR-report-tecnico.pdf)
 >
