@@ -1,21 +1,29 @@
 <div align="center">
   <img src="docs/assets/logo.png" width="112" height="112" alt="ITA-OCR: a document between four scanner brackets" />
   <h1>ITA-OCR</h1>
-  <p><strong>From the page to the text. On your own machine.</strong></p>
-  <p>Local OCR for Italian handwriting, built on a fine-tune of GLM-OCR.</p>
+  <p><strong>OCR for Italian handwriting, on your own machine.</strong></p>
+  <p>A Windows app built on a fine-tune of GLM-OCR. Recognition runs locally.</p>
+
   <p>
-    <a href="https://GioOtto.github.io/ITA-OCR/en/">Website</a> ·
-    <a href="https://github.com/GioOtto/ITA-OCR/releases/latest">Windows download</a> ·
-    <a href="docs/en/MODEL.md">Model</a> ·
-    <a href="docs/assets/ITA-OCR-report-tecnico.pdf">Technical report</a> ·
-    <a href="docs/en/BUILDING.md">Building</a> ·
+    <a href="https://GioOtto.github.io/ITA-OCR/en/"><img alt="Visit the website: GioOtto.github.io/ITA-OCR" src="https://img.shields.io/badge/Website-GioOtto.github.io%2FITA--OCR-111111?style=for-the-badge" /></a>
+    <a href="https://github.com/GioOtto/ITA-OCR/releases/latest"><img alt="Download for Windows x64" src="https://img.shields.io/badge/Download-Windows%20x64-111111?style=for-the-badge" /></a>
+  </p>
+
+  <p>
+    <a href="docs/en/INSTALL.md">Installation</a> &nbsp;&nbsp;
+    <a href="docs/en/MODEL.md">Model</a> &nbsp;&nbsp;
+    <a href="docs/assets/ITA-OCR-report-tecnico.pdf">Technical report</a> &nbsp;&nbsp;
+    <a href="docs/en/BUILDING.md">Building</a> &nbsp;&nbsp;
     <a href="https://github.com/GioOtto/ITA-OCR/issues">Issues</a>
   </p>
-  <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="MIT code" src="https://img.shields.io/badge/code-MIT-27674c" /> <img alt="Local inference" src="https://img.shields.io/badge/inference-local-27674c" /> <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-27674c" /></p>
-  <p><a href="README.md">Italiano</a> · <strong>English</strong></p>
+  <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="MIT code" src="https://img.shields.io/badge/code-MIT-181818" /> <img alt="Local inference" src="https://img.shields.io/badge/inference-local-181818" /> <img alt="No telemetry" src="https://img.shields.io/badge/telemetry-none-181818" /></p>
+  <p><a href="README.md">Italiano</a> &nbsp; <strong>English</strong></p>
 </div>
 
-![The ITA-OCR interface: document and transcription side by side, synthetic example](docs/assets/app-light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-dark.png">
+  <img alt="The ITA-OCR interface: document and transcription side by side, synthetic example" src="docs/assets/app-light.png">
+</picture>
 
 *Demonstration screenshot with synthetic content. It is not a measure of OCR accuracy.*
 
@@ -32,6 +40,9 @@ correction and export the text. PDFs that already carry a text layer can be
 read directly, without going through the model.
 
 ## Download and start
+
+The quickest route is the website: **<https://GioOtto.github.io/ITA-OCR/en/>**,
+which has the download, the screenshots and the results on a single page.
 
 1. Download **ITA-OCR-setup_v1.0.0.exe** from the [Windows release](https://github.com/GioOtto/ITA-OCR/releases/latest).
 2. Install it into your user profile: no administrator privileges required.

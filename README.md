@@ -1,21 +1,29 @@
 <div align="center">
   <img src="docs/assets/logo.png" width="112" height="112" alt="ITA-OCR: un documento tra quattro staffe di scansione" />
   <h1>ITA-OCR</h1>
-  <p><strong>Dalla pagina al testo. Sul tuo computer.</strong></p>
-  <p>OCR locale per la scrittura italiana, con un fine-tuning di GLM-OCR.</p>
+  <p><strong>OCR per la scrittura italiana, sul tuo computer.</strong></p>
+  <p>App Windows con un fine-tuning di GLM-OCR. Il riconoscimento gira in locale.</p>
+
   <p>
-    <a href="https://GioOtto.github.io/ITA-OCR/">Sito</a> ·
-    <a href="https://github.com/GioOtto/ITA-OCR/releases/latest">Download Windows</a> ·
-    <a href="docs/it/MODELLO.md">Modello</a> ·
-    <a href="docs/assets/ITA-OCR-report-tecnico.pdf">Report tecnico</a> ·
-    <a href="docs/it/LEGGIMI-WINDOWS.md">Compilare</a> ·
+    <a href="https://GioOtto.github.io/ITA-OCR/"><img alt="Vai al sito: GioOtto.github.io/ITA-OCR" src="https://img.shields.io/badge/Sito-GioOtto.github.io%2FITA--OCR-111111?style=for-the-badge" /></a>
+    <a href="https://github.com/GioOtto/ITA-OCR/releases/latest"><img alt="Scarica per Windows x64" src="https://img.shields.io/badge/Scarica-Windows%20x64-111111?style=for-the-badge" /></a>
+  </p>
+
+  <p>
+    <a href="docs/it/INSTALLAZIONE.md">Installazione</a> &nbsp;&nbsp;
+    <a href="docs/it/MODELLO.md">Modello</a> &nbsp;&nbsp;
+    <a href="docs/assets/ITA-OCR-report-tecnico.pdf">Report tecnico</a> &nbsp;&nbsp;
+    <a href="docs/it/LEGGIMI-WINDOWS.md">Compilare</a> &nbsp;&nbsp;
     <a href="https://github.com/GioOtto/ITA-OCR/issues">Segnalazioni</a>
   </p>
-  <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="Codice MIT" src="https://img.shields.io/badge/codice-MIT-27674c" /> <img alt="Inferenza locale" src="https://img.shields.io/badge/inferenza-locale-27674c" /> <img alt="Nessuna telemetria" src="https://img.shields.io/badge/telemetria-nessuna-27674c" /></p>
-  <p><strong>Italiano</strong> · <a href="README.en.md">English</a></p>
+  <p><img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-181818" /> <img alt="Codice MIT" src="https://img.shields.io/badge/codice-MIT-181818" /> <img alt="Inferenza locale" src="https://img.shields.io/badge/inferenza-locale-181818" /> <img alt="Nessuna telemetria" src="https://img.shields.io/badge/telemetria-nessuna-181818" /></p>
+  <p><strong>Italiano</strong> &nbsp; <a href="README.en.md">English</a></p>
 </div>
 
-![Interfaccia di ITA-OCR: documento e trascrizione affiancati, esempio sintetico](docs/assets/app-light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/app-dark.png">
+  <img alt="Interfaccia di ITA-OCR: documento e trascrizione affiancati, esempio sintetico" src="docs/assets/app-light.png">
+</picture>
 
 *Schermata dimostrativa dell’interfaccia con contenuti sintetici. Non è una misura dell’accuratezza OCR.*
 
@@ -32,6 +40,9 @@ correzioni e di esportare il testo. I PDF con testo già presente possono
 essere letti direttamente, senza passare dal modello.
 
 ## Scarica e inizia
+
+Il modo più rapido è il sito: **<https://GioOtto.github.io/ITA-OCR/>**,
+che ha il download, le schermate e i risultati in una pagina sola.
 
 1. Scarica **ITA-OCR-setup_v1.0.0.exe** dalla [release Windows](https://github.com/GioOtto/ITA-OCR/releases/latest).
 2. Installalo nel tuo profilo utente: non richiede privilegi di amministratore.

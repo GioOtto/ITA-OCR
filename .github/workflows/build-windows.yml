@@ -23,6 +23,9 @@ on:
 env:
   # Lo stesso commit verificato che usa la build di Linux.
   COMMIT_LLAMA: 4df29be
+  # SDK Vulkan fissato: "latest" cambierebbe sotto i piedi fra una build e
+  # l'altra, e il nome del file dell'installatore contiene la versione.
+  VERSIONE_VULKAN: 1.4.357.0
 
 jobs:
   windows:
