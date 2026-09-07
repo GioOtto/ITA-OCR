@@ -3,6 +3,7 @@ name = "ocr-ita-desktop"
 version = "1.0.0"
 edition = "2021"
 description = "OCR di manoscritto italiano con GLM-OCR fine-tunato, in locale"
+repository = "https://github.com/GioOtto/ITA-OCR"
 default-run = "ocr-ita-desktop"
 
 [build-dependencies]

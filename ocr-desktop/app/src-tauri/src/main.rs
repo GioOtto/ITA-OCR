@@ -270,7 +270,7 @@ fn archivio_rinomina(app: AppHandle, id: String, nome: String) -> Esito<()> {
 /// L'indirizzo del codice sorgente sta qui, non nel frontend: il comando che
 /// apre il browser non accetta un URL qualunque dalla webview, apre questo e
 /// basta. La pagina lo mostra scritto, e una prova controlla che sia lo stesso.
-const URL_REPOSITORY: &str = "https://github.com/GioOtto/ITA-OCR";
+const URL_REPOSITORY: &str = env!("CARGO_PKG_REPOSITORY");
 
 #[tauri::command]
 fn apri_repository() -> Esito<String> {
@@ -286,6 +286,11 @@ mod prove_repository {
     #[test]
     fn la_pagina_mostra_lindirizzo_che_si_apre() {
         let html = include_str!("../../ui/index.html");
+        assert_eq!(
+            super::URL_REPOSITORY,
+            "https://github.com/GioOtto/ITA-OCR",
+            "i metadati Cargo non indicano il repository pubblico"
+        );
         assert!(
             html.contains(super::URL_REPOSITORY),
             "index.html non cita {}",

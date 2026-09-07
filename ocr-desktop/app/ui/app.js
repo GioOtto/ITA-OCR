@@ -1510,20 +1510,64 @@ listen("ocr://motore", (evento) => {
   const MASSIMO = 75;
   const META = 46;
   let attivo = false;
+  let puntoTrascinamento = null;
+  let puntoDaConservare = null;
+  let riallineamento = 0;
 
-  function imposta(frazione) {
+  function puntoVisibile() {
+    if (guidato === nodi.documento) {
+      return puntoDiLettura(nodi.documento, ".carta");
+    }
+    return (
+      puntoDiLettura(nodi.testo, ".blocco") ||
+      puntoDiLettura(nodi.documento, ".carta")
+    );
+  }
+
+  function riallineaDopoIlRiflusso(punto) {
+    // Piu' movimenti possono arrivare nello stesso fotogramma. Si conserva
+    // il punto misurato prima del primo cambio di larghezza: misurarlo di
+    // nuovo dopo il riflusso significherebbe gia' accettare il disallineamento.
+    if (!puntoDaConservare) puntoDaConservare = punto;
+    if (!puntoDaConservare || riallineamento) return;
+    riallineamento = requestAnimationFrame(() => {
+      riallineamento = 0;
+      const daRipristinare = puntoDaConservare;
+      puntoDaConservare = null;
+      // Gli scroll qui sotto sono nostri: una guida rimasta da un gesto
+      // precedente non deve rimandarli avanti e indietro fra le colonne.
+      guidato = null;
+      clearTimeout(scadenzaGuida);
+      allinea(
+        nodi.documento,
+        ".carta",
+        daRipristinare.id,
+        daRipristinare.frazione
+      );
+      allinea(
+        nodi.testo,
+        ".blocco",
+        daRipristinare.id,
+        daRipristinare.frazione
+      );
+    });
+  }
+
+  function imposta(frazione, punto = puntoVisibile()) {
     const valore = Math.min(MASSIMO, Math.max(MINIMO, frazione));
     document.documentElement.style.setProperty(
       "--larghezza-documento",
       `${valore}%`
     );
     divisore.setAttribute("aria-valuenow", String(Math.round(valore)));
+    riallineaDopoIlRiflusso(punto);
   }
 
   const attuale = () => Number(divisore.getAttribute("aria-valuenow")) || META;
 
   divisore.addEventListener("mousedown", (e) => {
     attivo = true;
+    puntoTrascinamento = puntoVisibile();
     divisore.classList.add("attivo");
     document.body.classList.add("ridimensiona");
     e.preventDefault();
@@ -1532,12 +1576,16 @@ listen("ocr://motore", (evento) => {
   window.addEventListener("mousemove", (e) => {
     if (!attivo) return;
     const area = nodi.areaLavoro.getBoundingClientRect();
-    imposta(((e.clientX - area.left) / area.width) * 100);
+    imposta(
+      ((e.clientX - area.left) / area.width) * 100,
+      puntoTrascinamento
+    );
   });
 
   window.addEventListener("mouseup", () => {
     if (!attivo) return;
     attivo = false;
+    puntoTrascinamento = null;
     divisore.classList.remove("attivo");
     document.body.classList.remove("ridimensiona");
   });

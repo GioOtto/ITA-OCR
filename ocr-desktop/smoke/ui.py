@@ -248,6 +248,46 @@ def run():
         expect(page.locator(".blocco")).to_have_count(3)
         expect(page.locator(".katex").first).to_be_visible()
         expect(page.locator(".tabella-markdown").first).to_be_visible()
+        # Cambiare la larghezza fa rifluire testo e anteprime: entrambe le
+        # colonne devono restare sullo stesso punto logico della pagina.
+        page.wait_for_function(
+            "document.querySelector('.carta[data-id=d0p2] .cornice img')?.naturalWidth > 0"
+        )
+        page.evaluate("""() => {
+          allinea(nodi.documento, '.carta', 'd0p2', 0.55);
+          allinea(nodi.testo, '.blocco', 'd0p2', 0.55);
+        }""")
+        prima_resize = page.evaluate("""() => ({
+          documento: puntoDiLettura(nodi.documento, '.carta'),
+          testo: puntoDiLettura(nodi.testo, '.blocco'),
+        })""")
+        divisore_box = page.locator("#divisore").bounding_box()
+        area_box = page.locator("#area-lavoro").bounding_box()
+        page.mouse.move(divisore_box["x"] + divisore_box["width"] / 2,
+                        divisore_box["y"] + divisore_box["height"] / 2)
+        page.mouse.down()
+        page.mouse.move(area_box["x"] + area_box["width"] * 0.68,
+                        divisore_box["y"] + divisore_box["height"] / 2,
+                        steps=8)
+        page.mouse.up()
+        expect(page.locator("#divisore")).to_have_attribute("aria-valuenow", "68")
+        page.wait_for_timeout(50)
+        dopo_resize = page.evaluate("""() => ({
+          documento: puntoDiLettura(nodi.documento, '.carta'),
+          testo: puntoDiLettura(nodi.testo, '.blocco'),
+        })""")
+        for colonna in ("documento", "testo"):
+            assert dopo_resize[colonna]["id"] == prima_resize[colonna]["id"], (
+                prima_resize, dopo_resize
+            )
+            assert abs(
+                dopo_resize[colonna]["frazione"] - prima_resize[colonna]["frazione"]
+            ) < 0.03, (prima_resize, dopo_resize)
+        assert abs(
+            dopo_resize["documento"]["frazione"] - dopo_resize["testo"]["frazione"]
+        ) < 0.03, dopo_resize
+        page.locator("#divisore").focus()
+        page.keyboard.press("Home")
         page.locator("#apri-avanzate").click()
         expect(page.locator("#tempi details")).to_be_visible()
         assert page.locator("#tempi > .riga-tempo").is_visible()
