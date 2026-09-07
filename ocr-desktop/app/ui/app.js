@@ -105,6 +105,9 @@ const RE_FORMULA =
   /\$\$([\s\S]+?)\$\$|\\\[([\s\S]+?)\\\]|(?<!\\)\$((?:\\.|[^$\n])+?)(?<!\\)\$|\\\(([\s\S]+?)\\\)/g;
 
 function avvisa(messaggio, male = false) {
+  // Un avviso nuovo puo' arrivare mentre il precedente sta finendo la sua
+  // animazione di chiusura. Quel timer non deve nascondere anche il nuovo.
+  clearTimeout(chiudiAvviso.timer);
   const testo = document.createElement("span");
   testo.className = "testo-avviso";
   testo.textContent = messaggio;

@@ -308,6 +308,13 @@ def run():
         page.locator("#copia").click()
         expect(page.locator("#brindisi")).to_contain_text("copiat", ignore_case=True)
         page.locator("#brindisi").click()
+        # Se un secondo avviso arriva nei 240 ms dell'animazione di chiusura,
+        # il vecchio timer non deve nascondere anche quello nuovo.
+        page.evaluate("avvisa('Avviso sostitutivo')")
+        page.wait_for_timeout(300)
+        expect(page.locator("#brindisi")).to_be_visible()
+        expect(page.locator("#brindisi")).to_contain_text("Avviso sostitutivo")
+        page.locator("#brindisi").click()
 
         expect(page.locator(".avviso-modello")).to_be_visible()
 
