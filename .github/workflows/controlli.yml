@@ -1,0 +1,73 @@
+name: Controlli
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: controlli-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    name: Rust e pubblicazione
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Dipendenze di Tauri
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev
+
+      - name: Cache di cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ocr-desktop/app/src-tauri
+
+      - name: Formattazione
+        working-directory: ocr-desktop/app/src-tauri
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        working-directory: ocr-desktop/app/src-tauri
+        run: cargo clippy --locked --all-targets -- -D warnings
+
+      - name: Test Rust
+        working-directory: ocr-desktop/app/src-tauri
+        run: cargo test --locked
+
+      - name: Materiale pubblicabile
+        run: python scripts/verifica-pubblicazione.py
+
+  interfaccia:
+    name: Smoke test interfaccia
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ocr-desktop/smoke/requirements.txt
+
+      - name: Dipendenze dello smoke test
+        run: |
+          python -m pip install --disable-pip-version-check -r ocr-desktop/smoke/requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Interfaccia
+        run: python ocr-desktop/smoke/ui.py

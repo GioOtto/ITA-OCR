@@ -26,6 +26,8 @@ env:
   # SDK Vulkan fissato: "latest" cambierebbe sotto i piedi fra una build e
   # l'altra, e il nome del file dell'installatore contiene la versione.
   VERSIONE_VULKAN: 1.4.357.0
+  PDFIUM_TAG: chromium/8021
+  PDFIUM_SHA256: adac8ce034015427b5daa81f8eeddfcc8e84bc2a9f036f007890ff18bd4388c4
 
 jobs:
   windows:
@@ -146,7 +148,7 @@ jobs:
       - name: Compila l'applicazione
         shell: pwsh
         working-directory: ocr-desktop/app/src-tauri
-        run: cargo build --release
+        run: cargo build --release --locked
 
       - name: Assembla la cartella portabile
         shell: pwsh
@@ -192,9 +194,13 @@ jobs:
           New-Item -ItemType Directory -Force -Path "$uscita\dictionaries\en_US" | Out-Null
           Copy-Item "ocr-desktop\resources\dictionaries\en_US\*" "$uscita\dictionaries\en_US\"
 
-          # PDFium ufficiale, non ricompilata.
-          $url = "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-win-x64.tgz"
+          # PDFium ufficiale, fissata alla stessa build di Linux e verificata.
+          $url = "https://github.com/bblanchon/pdfium-binaries/releases/download/$env:PDFIUM_TAG/pdfium-win-x64.tgz"
           Invoke-WebRequest -Uri $url -OutFile pdfium.tgz
+          $sha = (Get-FileHash pdfium.tgz -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($sha -ne $env:PDFIUM_SHA256) {
+            throw "SHA-256 di PDFium non valido: atteso $env:PDFIUM_SHA256, trovato $sha"
+          }
           New-Item -ItemType Directory -Force -Path pdfium-tmp | Out-Null
           tar -xzf pdfium.tgz -C pdfium-tmp
           Copy-Item "pdfium-tmp\bin\pdfium.dll" $uscita

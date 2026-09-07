@@ -57,5 +57,5 @@ cmake --build "$BUILD_LLAMA" -j "$(nproc)"
 
 echo "==> applicazione (Tauri + Rust)"
 cd "$APP"
-cargo build --release
+cargo build --release --locked
 echo "==> fatto: $APP/target/release/$NOME_APP"

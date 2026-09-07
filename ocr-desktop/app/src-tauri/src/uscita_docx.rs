@@ -16,8 +16,7 @@ use std::path::Path;
 const LARGHEZZA: usize = 9026;
 
 pub fn scrivi(markdown: &str, percorso: &Path) -> Result<(), String> {
-    let file = std::fs::File::create(percorso)
-        .map_err(|e| format!("file non creabile: {e}"))?;
+    let file = std::fs::File::create(percorso).map_err(|e| format!("file non creabile: {e}"))?;
     costruisci(markdown)
         .build()
         .pack(file)
@@ -205,9 +204,19 @@ fn pezzi(testo: &str) -> Vec<Pezzo> {
                 let dentro: String = caratteri[i + lunghezza..fine].iter().collect();
                 if !dentro.is_empty() {
                     if !corrente.is_empty() {
-                        fuori.push(Pezzo { testo: std::mem::take(&mut corrente), grassetto: false, corsivo: false, fisso: false });
+                        fuori.push(Pezzo {
+                            testo: std::mem::take(&mut corrente),
+                            grassetto: false,
+                            corsivo: false,
+                            fisso: false,
+                        });
                     }
-                    fuori.push(Pezzo { testo: dentro, grassetto, corsivo, fisso });
+                    fuori.push(Pezzo {
+                        testo: dentro,
+                        grassetto,
+                        corsivo,
+                        fisso,
+                    });
                     i = fine + lunghezza;
                     continue;
                 }
@@ -217,7 +226,12 @@ fn pezzi(testo: &str) -> Vec<Pezzo> {
         i += 1;
     }
     if !corrente.is_empty() || fuori.is_empty() {
-        fuori.push(Pezzo { testo: corrente, grassetto: false, corsivo: false, fisso: false });
+        fuori.push(Pezzo {
+            testo: corrente,
+            grassetto: false,
+            corsivo: false,
+            fisso: false,
+        });
     }
     fuori
 }

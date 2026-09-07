@@ -68,10 +68,13 @@ impl Correttore {
         // lessicali personali possono essere aggiunte localmente; non sono
         // necessarie per caricare il correttore e non vengono distribuite.
         let training = leggi_opzionale(&cartella.join("lessico.txt"))?.unwrap_or_else(|| {
-            dic.lines().skip(1).filter_map(|riga| {
-                let parola = riga.split('/').next()?.split_whitespace().next()?;
-                Some(format!("{parola}\t1\n"))
-            }).collect()
+            dic.lines()
+                .skip(1)
+                .filter_map(|riga| {
+                    let parola = riga.split('/').next()?.split_whitespace().next()?;
+                    Some(format!("{parola}\t1\n"))
+                })
+                .collect()
         });
         let contesto = leggi_opzionale(&cartella.join("contesto.txt"))?.unwrap_or_default();
         let inglese = cartella_inglese.and_then(|dir| {
@@ -186,7 +189,10 @@ impl Correttore {
     /// e' il braccio prudente del test sul development holdout.
     pub fn correggi_contesto(&self, testo: &str, continua_dalla_precedente: bool) -> Esito {
         if self.bigrammi.is_empty() && self.trigrammi.is_empty() {
-            return Esito { testo: testo.to_owned(), correzioni: Vec::new() };
+            return Esito {
+                testo: testo.to_owned(),
+                correzioni: Vec::new(),
+            };
         }
         const MARGINE_MINIMO: f64 = 3.0;
         let formule: Vec<(usize, usize)> = self
@@ -254,7 +260,8 @@ impl Correttore {
     pub fn correggi_varianti(&self, testo: &str, continua_dalla_precedente: bool) -> Varianti {
         let dizionario = self.correggi(testo, continua_dalla_precedente);
         let contesto = self.correggi_contesto(testo, continua_dalla_precedente);
-        let secondo_passaggio = self.correggi_contesto(&dizionario.testo, continua_dalla_precedente);
+        let secondo_passaggio =
+            self.correggi_contesto(&dizionario.testo, continua_dalla_precedente);
         let mut correzioni_dizionario = dizionario.correzioni.clone();
         let mut delta_precedente = 0isize;
         let spostamenti: Vec<(usize, isize)> = secondo_passaggio
@@ -477,8 +484,10 @@ mod test {
 
     #[test]
     fn protegge_maiuscole_formule_e_parole_non_viste() {
-        let esito =
-            correttore().correggi("Afferhazione $afferhazione$ computer afferhazione-\ncomputer", false);
+        let esito = correttore().correggi(
+            "Afferhazione $afferhazione$ computer afferhazione-\ncomputer",
+            false,
+        );
         assert_eq!(
             esito.testo,
             "Afferhazione $afferhazione$ computer afferhazione-\ncomputer"
@@ -516,10 +525,13 @@ mod test {
         let dic_it = "2\nnote\nnota\n";
         let train_it = "note\t9\n";
         let senza = Correttore::da_testi(AFF, dic_it, train_it, "", None).unwrap();
-        assert_eq!(senza.correggi("nelle notes finali", false).testo, "nelle note finali");
+        assert_eq!(
+            senza.correggi("nelle notes finali", false).testo,
+            "nelle note finali"
+        );
 
-        let con = Correttore::da_testi(AFF, dic_it, train_it, "", Some((AFF_EN, "1\nnotes\n")))
-            .unwrap();
+        let con =
+            Correttore::da_testi(AFF, dic_it, train_it, "", Some((AFF_EN, "1\nnotes\n"))).unwrap();
         let esito = con.correggi("nelle notes finali", false);
         assert_eq!(esito.testo, "nelle notes finali");
         assert!(esito.correzioni.is_empty());
@@ -533,11 +545,19 @@ mod test {
         let train_it = "basta\t10\npasta\t10\n";
         let contesto = "B\tla\tpasta\t4\nB\tpasta\tfresca\t4\nT\tla\tpasta\tfresca\t4\n";
         let senza = Correttore::da_testi(AFF, dic_it, train_it, contesto, None).unwrap();
-        assert_eq!(senza.correggi_contesto("la casta fresca", false).testo, "la pasta fresca");
+        assert_eq!(
+            senza.correggi_contesto("la casta fresca", false).testo,
+            "la pasta fresca"
+        );
 
-        let con =
-            Correttore::da_testi(AFF, dic_it, train_it, contesto, Some((AFF_EN, "1\ncasta\n")))
-                .unwrap();
+        let con = Correttore::da_testi(
+            AFF,
+            dic_it,
+            train_it,
+            contesto,
+            Some((AFF_EN, "1\ncasta\n")),
+        )
+        .unwrap();
         let esito = con.correggi_contesto("la casta fresca", false);
         assert_eq!(esito.testo, "la casta fresca");
         assert!(esito.correzioni.is_empty());
@@ -549,7 +569,8 @@ mod test {
     fn senza_dizionario_inglese_corregge_come_prima() {
         let c = Correttore::carica(&dir_risorse("it_IT"), None).unwrap();
         assert_eq!(
-            c.correggi("questa afferhazione resta verificabile", false).testo,
+            c.correggi("questa afferhazione resta verificabile", false)
+                .testo,
             "questa affermazione resta verificabile"
         );
     }
@@ -604,8 +625,7 @@ mod test {
         assert_eq!(rovinata.correzioni[0].originale, "values");
         assert_eq!(rovinata.correzioni[0].corretta, "value");
 
-        let con =
-            Correttore::carica(&dir_risorse("it_IT"), Some(&dir_risorse("en_US"))).unwrap();
+        let con = Correttore::carica(&dir_risorse("it_IT"), Some(&dir_risorse("en_US"))).unwrap();
         let esito = con.correggi(frase, false);
         assert_eq!(esito.testo, frase);
         assert!(esito.correzioni.is_empty());

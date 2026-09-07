@@ -266,7 +266,10 @@ pub fn esegui(opzioni: Opzioni) -> i32 {
     riga("incomplete", incomplete);
     riga("annullate", annullate);
     riga("secondi nel VLM", format!("{secondi_vlm:.2}"));
-    riga("wall totale", format!("{:.2} s", inizio_totale.elapsed().as_secs_f64()));
+    riga(
+        "wall totale",
+        format!("{:.2} s", inizio_totale.elapsed().as_secs_f64()),
+    );
 
     if let Some(mut m) = motore {
         let pid = m.pid();

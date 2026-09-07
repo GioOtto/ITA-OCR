@@ -13,7 +13,8 @@ pub const STOP_UFFICIALI: [i64; 2] = [59246, 59253];
 
 fn leggi<const N: usize>(f: &mut impl Read) -> Result<[u8; N], String> {
     let mut buf = [0u8; N];
-    f.read_exact(&mut buf).map_err(|e| format!("GGUF troncato: {e}"))?;
+    f.read_exact(&mut buf)
+        .map_err(|e| format!("GGUF troncato: {e}"))?;
     Ok(buf)
 }
 
@@ -31,7 +32,8 @@ fn stringa(f: &mut impl Read) -> Result<String, String> {
         return Err("stringa GGUF assurda".into());
     }
     let mut buf = vec![0u8; n];
-    f.read_exact(&mut buf).map_err(|e| format!("GGUF troncato: {e}"))?;
+    f.read_exact(&mut buf)
+        .map_err(|e| format!("GGUF troncato: {e}"))?;
     Ok(String::from_utf8_lossy(&buf).to_string())
 }
 

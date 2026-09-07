@@ -87,11 +87,24 @@ jobs:
       # lasciarglielo scoprire con un errore del linker dinamico.
       - name: Glibc richiesta
         run: |
-          binario=ocr-desktop/dist/ITA-OCR.AppDir/usr/bin/ocr-ita-desktop
-          echo "glibc minima: $(objdump -T "$binario" \
-            | grep -o 'GLIBC_[0-9.]*' | sort -Vu | tail -1)"
+          appdir=ocr-desktop/dist/ITA-OCR.AppDir
+          requisiti=$(mktemp)
+          while IFS= read -r -d '' binario; do
+            if file -b "$binario" | grep -q '^ELF'; then
+              versione=$(objdump -T "$binario" 2>/dev/null \
+                | grep -o 'GLIBC_[0-9][0-9.]*' | sort -Vu | tail -1 || true)
+              if [ -n "$versione" ]; then
+                printf '%s\t%s\n' "${versione#GLIBC_}" "$binario" >> "$requisiti"
+              fi
+            fi
+          done < <(find "$appdir" -type f -print0)
+          [ -s "$requisiti" ] || { echo "nessun requisito glibc trovato" >&2; exit 1; }
+          massimo=$(sort -t $'\t' -k1,1V "$requisiti" | tail -1)
+          echo "glibc minima dell'intera AppDir: ${massimo%%$'\t'*}"
+          echo "componente determinante: ${massimo#*$'\t'}"
+          rm -f "$requisiti"
           echo "--- contenuto ---"
-          find ocr-desktop/dist/ITA-OCR.AppDir -type f | sort
+          find "$appdir" -type f | sort
           echo "--- checksum ---"
           cat ocr-desktop/dist/*.AppImage.sha256
 

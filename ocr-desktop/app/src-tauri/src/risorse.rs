@@ -43,10 +43,12 @@ fn candidati_risorse() -> Vec<PathBuf> {
 /// Radice delle risorse: contiene `llama/` e `libpdfium.so`.
 pub fn radice_risorse() -> Result<PathBuf, String> {
     for candidato in candidati_risorse() {
-        if candidato.join("llama").join(crate::piattaforma::NOME_MOTORE).is_file() {
-            return Ok(candidato
-                .canonicalize()
-                .unwrap_or(candidato));
+        if candidato
+            .join("llama")
+            .join(crate::piattaforma::NOME_MOTORE)
+            .is_file()
+        {
+            return Ok(candidato.canonicalize().unwrap_or(candidato));
         }
     }
     Err("motore llama-server non trovato accanto all'applicazione. \
@@ -79,9 +81,7 @@ pub fn libreria_pdfium() -> Result<PathBuf, String> {
 
 pub fn dir_dizionario() -> Result<PathBuf, String> {
     let dir = radice_risorse()?.join("dictionaries/it_IT");
-    if dir.join("it_IT.aff").is_file()
-        && dir.join("it_IT.dic").is_file()
-    {
+    if dir.join("it_IT.aff").is_file() && dir.join("it_IT.dic").is_file() {
         Ok(dir)
     } else {
         Err("dizionario italiano o lessico del training v8 non presenti nelle risorse".into())

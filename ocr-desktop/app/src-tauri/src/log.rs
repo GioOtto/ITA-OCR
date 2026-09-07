@@ -4,7 +4,7 @@
 //! diagnostico sta nella UI e il file su disco si apre con un pulsante.
 
 use std::fs::{self, OpenOptions};
-use std::io::Write;
+use std::io::{self, Write};
 use std::path::PathBuf;
 use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -83,24 +83,34 @@ pub fn inizializza(dir: PathBuf) {
     }));
 }
 
-fn ruota(file: &PathBuf) {
-    let Ok(meta) = fs::metadata(file) else {
-        return;
+fn ruota_con_limite(file: &PathBuf, limite: u64) -> io::Result<()> {
+    let meta = match fs::metadata(file) {
+        Ok(meta) => meta,
+        Err(e) if e.kind() == io::ErrorKind::NotFound => return Ok(()),
+        Err(e) => return Err(e),
     };
-    if meta.len() < BYTE_MASSIMI {
-        return;
+    if meta.len() < limite {
+        return Ok(());
     }
-    let _ = fs::remove_file(file.with_extension(format!("log.{COPIE}")));
+    match fs::remove_file(file.with_extension(format!("log.{COPIE}"))) {
+        Ok(()) => {}
+        Err(e) if e.kind() == io::ErrorKind::NotFound => {}
+        Err(e) => return Err(e),
+    }
     for indice in (1..COPIE).rev() {
-        let da = if indice == 1 {
-            file.clone()
-        } else {
-            file.with_extension(format!("log.{}", indice - 1))
-        };
-        let a = file.with_extension(format!("log.{indice}"));
-        let _ = fs::rename(&da, &a);
+        let da = file.with_extension(format!("log.{indice}"));
+        let a = file.with_extension(format!("log.{}", indice + 1));
+        match fs::rename(da, a) {
+            Ok(()) => {}
+            Err(e) if e.kind() == io::ErrorKind::NotFound => {}
+            Err(e) => return Err(e),
+        }
     }
-    let _ = fs::rename(file, file.with_extension("log.1"));
+    fs::rename(file, file.with_extension("log.1"))
+}
+
+fn ruota(file: &PathBuf) -> io::Result<()> {
+    ruota_con_limite(file, BYTE_MASSIMI)
 }
 
 pub fn scrivi(livello: &str, testo: impl AsRef<str>) {
@@ -117,8 +127,14 @@ pub fn scrivi(livello: &str, testo: impl AsRef<str>) {
     let Ok(mut stato) = cella.lock() else {
         return;
     };
-    ruota(&stato.file);
-    if let Ok(mut f) = OpenOptions::new().create(true).append(true).open(&stato.file) {
+    if let Err(e) = ruota(&stato.file) {
+        eprintln!("[warn] rotazione del log fallita: {e}");
+    }
+    if let Ok(mut f) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&stato.file)
+    {
         let _ = writeln!(f, "{} [{}] {}", riga.istante, riga.livello, riga.testo);
     }
     if stato.anello.len() >= RIGHE_IN_MEMORIA {
@@ -135,7 +151,9 @@ pub fn recenti() -> Vec<Riga> {
 }
 
 pub fn file_corrente() -> Option<PathBuf> {
-    STATO.get().and_then(|c| c.lock().ok().map(|s| s.file.clone()))
+    STATO
+        .get()
+        .and_then(|c| c.lock().ok().map(|s| s.file.clone()))
 }
 
 #[macro_export]
@@ -151,4 +169,46 @@ macro_rules! attenzione {
 #[macro_export]
 macro_rules! errore {
     ($($arg:tt)*) => { $crate::log::scrivi("error", format!($($arg)*)) };
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn conserva_le_cinque_copie_nell_ordine_corretto() {
+        let dir = std::env::temp_dir().join(format!(
+            "ita-ocr-log-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("ocr-ita-desktop.log");
+        fs::write(&file, "corrente").unwrap();
+        for indice in 1..=COPIE {
+            fs::write(
+                file.with_extension(format!("log.{indice}")),
+                format!("copia {indice}"),
+            )
+            .unwrap();
+        }
+
+        ruota_con_limite(&file, 0).unwrap();
+
+        assert!(!file.exists());
+        assert_eq!(
+            fs::read_to_string(file.with_extension("log.1")).unwrap(),
+            "corrente"
+        );
+        for indice in 2..=COPIE {
+            assert_eq!(
+                fs::read_to_string(file.with_extension(format!("log.{indice}"))).unwrap(),
+                format!("copia {}", indice - 1)
+            );
+        }
+        fs::remove_dir_all(dir).unwrap();
+    }
 }

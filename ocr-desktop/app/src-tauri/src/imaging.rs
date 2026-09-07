@@ -15,8 +15,8 @@ pub const DPI_RENDER: f32 = 150.0;
 pub fn canvas_pagina(immagine: &DynamicImage) -> RgbImage {
     let (larghezza, altezza) = CANVAS;
     let sorgente = immagine.to_rgb8();
-    let scala = (larghezza as f32 / sorgente.width() as f32)
-        .min(altezza as f32 / sorgente.height() as f32);
+    let scala =
+        (larghezza as f32 / sorgente.width() as f32).min(altezza as f32 / sorgente.height() as f32);
     let nuova_larghezza = ((sorgente.width() as f32 * scala).round() as u32).max(1);
     let nuova_altezza = ((sorgente.height() as f32 * scala).round() as u32).max(1);
     let ridotta = image::imageops::resize(
@@ -101,11 +101,8 @@ mod test {
 
     #[test]
     fn il_canvas_centra_senza_deformare() {
-        let sorgente = DynamicImage::ImageRgb8(RgbImage::from_pixel(
-            100,
-            50,
-            image::Rgb([0, 0, 0]),
-        ));
+        let sorgente =
+            DynamicImage::ImageRgb8(RgbImage::from_pixel(100, 50, image::Rgb([0, 0, 0])));
         let fuori = canvas_pagina(&sorgente);
         assert_eq!((fuori.width(), fuori.height()), CANVAS);
         // 100x50 su 960x1248 scala per larghezza: 960x480, centrato in verticale.

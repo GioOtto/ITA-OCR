@@ -130,13 +130,13 @@ mod interno {
     use std::sync::atomic::{AtomicIsize, Ordering};
     use windows_sys::Win32::Foundation::{CloseHandle, HANDLE, MAX_PATH};
     use windows_sys::Win32::System::JobObjects::{
-        AssignProcessToJobObject, CreateJobObjectW, SetInformationJobObject,
-        JobObjectExtendedLimitInformation, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
+        AssignProcessToJobObject, CreateJobObjectW, JobObjectExtendedLimitInformation,
+        SetInformationJobObject, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
         JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
     };
     use windows_sys::Win32::System::Threading::{
-        OpenProcess, QueryFullProcessImageNameW, TerminateProcess, PROCESS_QUERY_LIMITED_INFORMATION,
-        PROCESS_TERMINATE,
+        OpenProcess, QueryFullProcessImageNameW, TerminateProcess,
+        PROCESS_QUERY_LIMITED_INFORMATION, PROCESS_TERMINATE,
     };
 
     /// Il job a cui si appende il motore. Windows lo chiude quando l'ultimo
@@ -235,9 +235,8 @@ mod interno {
             if esito == 0 {
                 return false;
             }
-            let visto = std::path::PathBuf::from(String::from_utf16_lossy(
-                &buffer[..lunghezza as usize],
-            ));
+            let visto =
+                std::path::PathBuf::from(String::from_utf16_lossy(&buffer[..lunghezza as usize]));
             let Ok(atteso) = crate::risorse::binario_llama() else {
                 return false;
             };

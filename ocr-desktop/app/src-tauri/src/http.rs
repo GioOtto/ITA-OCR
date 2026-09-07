@@ -124,6 +124,10 @@ impl Risposta {
                     .map_err(|_| format!("chunk size illeggibile: {riga:?}"))?;
                 if n == 0 {
                     self.finito = true;
+                    // Dopo il chunk terminale possono restare il CRLF finale
+                    // ed eventuali trailer HTTP. Il corpo e' gia' completo e
+                    // questi byte non sono un'altra riga di chunk size.
+                    self.grezzi.clear();
                     return Ok(());
                 }
                 self.residuo = n;
@@ -156,6 +160,11 @@ impl Risposta {
     /// Una riga per chiamata; `Attesa` quando il socket e' silenzioso.
     pub fn prossima_riga(&mut self) -> Result<Pezzo> {
         loop {
+            // `apri` puo' aver letto il primo pezzo del corpo insieme alle
+            // intestazioni. Va elaborato prima di tentare un'altra read: oltre
+            // a evitare un'attesa inutile, nessuna riga deve essere estratta e
+            // scartata nel solo tentativo di capire se il socket e' silenzioso.
+            self.sframmenta()?;
             if let Some(r) = self.stacca_riga() {
                 return Ok(Pezzo::Riga(r));
             }
@@ -167,14 +176,12 @@ impl Risposta {
                 self.corpo.clear();
                 return Ok(Pezzo::Riga(resto));
             }
-            if !self.riempi()? {
-                self.sframmenta()?;
-                if self.stacca_riga().is_none() && !self.finito {
-                    return Ok(Pezzo::Attesa);
-                }
+            if !self.riempi()? && !self.finito {
+                return Ok(Pezzo::Attesa);
+            }
+            if self.finito {
                 continue;
             }
-            self.sframmenta()?;
         }
     }
 
@@ -314,4 +321,63 @@ pub fn json(
         return Err(format!("HTTP {} da {percorso}: {testo}", risposta.stato()));
     }
     serde_json::from_str(&testo).map_err(|e| format!("JSON non valido da {percorso}: {e}"))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::net::TcpListener;
+    use std::thread;
+
+    fn chunk(testo: &str) -> String {
+        format!("{:x}\r\n{testo}\r\n", testo.len())
+    }
+
+    #[test]
+    fn non_perde_il_primo_evento_arrivato_con_le_intestazioni() {
+        let listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+        let porta = listener.local_addr().unwrap().port();
+        let server = thread::spawn(move || {
+            let (mut socket, _) = listener.accept().unwrap();
+            let primo = chunk("data: primo\n\n");
+            socket
+                .write_all(
+                    format!("HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n{primo}")
+                        .as_bytes(),
+                )
+                .unwrap();
+            socket.flush().unwrap();
+            thread::sleep(Duration::from_millis(150));
+            let secondo = chunk("data: secondo\n\n");
+            socket
+                .write_all(format!("{secondo}0\r\n\r\n").as_bytes())
+                .unwrap();
+        });
+
+        let mut risposta = apri(
+            porta,
+            "GET",
+            "/eventi",
+            None,
+            Duration::from_secs(1),
+            Duration::from_millis(30),
+        )
+        .unwrap();
+
+        assert!(matches!(
+            risposta.prossima_riga().unwrap(),
+            Pezzo::Riga(riga) if riga == "data: primo"
+        ));
+
+        let mut righe = Vec::new();
+        loop {
+            match risposta.prossima_riga().unwrap() {
+                Pezzo::Riga(riga) => righe.push(riga),
+                Pezzo::Attesa => continue,
+                Pezzo::Fine => break,
+            }
+        }
+        assert!(righe.iter().any(|riga| riga == "data: secondo"));
+        server.join().unwrap();
+    }
 }

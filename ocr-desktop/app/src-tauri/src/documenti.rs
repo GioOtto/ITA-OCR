@@ -101,8 +101,7 @@ pub fn apri(percorso: &Path, forza_ocr: bool) -> Result<Documento, String> {
         return Err("formato non supportato: servono PDF, PNG, JPEG, TIFF, BMP o WebP".into());
     }
     // Si decodifica subito per dare l'errore adesso e non a meta' elaborazione.
-    image::load_from_memory(&dati)
-        .map_err(|e| format!("immagine non leggibile: {e}"))?;
+    image::load_from_memory(&dati).map_err(|e| format!("immagine non leggibile: {e}"))?;
     Ok(Documento {
         nome,
         percorso: percorso.to_string_lossy().into_owned(),

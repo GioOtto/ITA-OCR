@@ -13,7 +13,7 @@
 
 use crate::documenti;
 use crate::lavoro::{DettaglioTentativo, Pagina, Stato, StatoPagina};
-use crate::{attenzione, correzione, info, risorse};
+use crate::{attenzione, correzione, file_atomico, info, risorse};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -97,8 +97,18 @@ fn cartella() -> PathBuf {
     risorse::dir_dati().join("archivio")
 }
 
-fn file_sessione(id: &str) -> PathBuf {
-    cartella().join(format!("{id}.json"))
+fn id_valido(id: &str) -> bool {
+    let Some(cifre) = id.strip_prefix('s') else {
+        return false;
+    };
+    (10..=20).contains(&cifre.len()) && cifre.bytes().all(|c| c.is_ascii_digit())
+}
+
+fn file_sessione(id: &str) -> Result<PathBuf, String> {
+    if !id_valido(id) {
+        return Err("identificativo di sessione non valido".into());
+    }
+    Ok(cartella().join(format!("{id}.json")))
 }
 
 fn adesso() -> i64 {
@@ -142,11 +152,18 @@ pub fn elenco() -> Vec<Voce> {
         let Some(sessione) = leggi(&percorso) else {
             continue;
         };
-        let pagine_lette = sessione
-            .pagine
-            .iter()
-            .filter(|p| p.caratteri > 0)
-            .count();
+        // Non basta fidarsi dell'id dentro il JSON: deve essere valido e deve
+        // corrispondere al nome del file da cui e' stato letto.
+        if !id_valido(&sessione.id)
+            || percorso.file_stem().and_then(|n| n.to_str()) != Some(sessione.id.as_str())
+        {
+            attenzione!(
+                "sessione con identificativo non valido: {}",
+                percorso.display()
+            );
+            continue;
+        }
+        let pagine_lette = sessione.pagine.iter().filter(|p| p.caratteri > 0).count();
         voci.push(Voce {
             id: sessione.id.clone(),
             nome: sessione.nome.clone(),
@@ -184,11 +201,7 @@ fn leggi(percorso: &Path) -> Option<Sessione> {
 pub fn salva(stato: &Stato, nome: Option<String>) -> Result<Option<String>, String> {
     // Si legge subito, e si rilascia: piu' avanti servono altri lucchetti e
     // tenerne due aperti insieme e' il modo classico per incastrarsi.
-    let precedente = stato
-        .sessione
-        .lock()
-        .ok()
-        .and_then(|s| s.clone());
+    let precedente = stato.sessione.lock().ok().and_then(|s| s.clone());
     let pagine = stato.pagine.lock().map_err(|_| "stato inconsistente")?;
     // Una sessione senza una riga di testo non merita una voce nell'archivio.
     if pagine.iter().all(|p| p.caratteri == 0) {
@@ -230,7 +243,10 @@ pub fn salva(stato: &Stato, nome: Option<String>) -> Result<Option<String>, Stri
 
 /// Il nome gia' salvato per quella voce, se la voce esiste ancora.
 fn nome_esistente(id: &str) -> Option<String> {
-    leggi(&file_sessione(id)).map(|s| s.nome)
+    file_sessione(id)
+        .ok()
+        .and_then(|percorso| leggi(&percorso))
+        .map(|s| s.nome)
 }
 
 fn scrivi(sessione: &Sessione) -> Result<(), String> {
@@ -239,7 +255,8 @@ fn scrivi(sessione: &Sessione) -> Result<(), String> {
         .map_err(|e| format!("cartella dell'archivio non creabile: {e}"))?;
     let testo = serde_json::to_string_pretty(sessione)
         .map_err(|e| format!("sessione non serializzabile: {e}"))?;
-    std::fs::write(file_sessione(&sessione.id), testo)
+    let percorso = file_sessione(&sessione.id)?;
+    file_atomico::scrivi(&percorso, testo.as_bytes())
         .map_err(|e| format!("sessione non scrivibile: {e}"))
 }
 
@@ -253,12 +270,11 @@ pub fn salva_in_silenzio(stato: &Stato) {
 }
 
 pub fn elimina(id: &str) -> Result<(), String> {
-    std::fs::remove_file(file_sessione(id))
-        .map_err(|e| format!("sessione non eliminabile: {e}"))
+    std::fs::remove_file(file_sessione(id)?).map_err(|e| format!("sessione non eliminabile: {e}"))
 }
 
 pub fn rinomina(id: &str, nome: &str) -> Result<(), String> {
-    let percorso = file_sessione(id);
+    let percorso = file_sessione(id)?;
     let mut sessione = leggi(&percorso).ok_or("sessione non trovata")?;
     sessione.nome = nome.trim().to_string();
     if sessione.nome.is_empty() {
@@ -275,7 +291,7 @@ pub fn rinomina(id: &str, nome: &str) -> Result<(), String> {
 /// pienamente lavorabile; quelli spariti lasciano le pagine senza immagine.
 /// Restituisce quanti documenti non si sono potuti riaprire.
 pub fn carica(stato: &Stato, id: &str) -> Result<usize, String> {
-    let sessione = leggi(&file_sessione(id)).ok_or("sessione non trovata")?;
+    let sessione = leggi(&file_sessione(id)?).ok_or("sessione non trovata")?;
     let forza = stato
         .impostazioni
         .lock()
@@ -403,5 +419,26 @@ fn a_pagina(s: &PaginaSalvata, indice_documento: usize, posizione: usize) -> Pag
         dettagli_correzione: s.dettagli_correzione.clone(),
         dettagli_contestuali: s.dettagli_contestuali.clone(),
         dettagli_completi: s.dettagli_completi.clone(),
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn accetta_solo_identificativi_generati_dall_app() {
+        assert!(id_valido("s1725638400123"));
+        assert!(id_valido("s12345678901234567890"));
+        for id in [
+            "../../impostazioni",
+            "s123.json/../altro",
+            "x1725638400123",
+            "s123456789",
+            "s123456789012345678901",
+            "s172563840O123",
+        ] {
+            assert!(!id_valido(id), "accettato {id:?}");
+        }
     }
 }

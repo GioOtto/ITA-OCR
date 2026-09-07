@@ -5,6 +5,7 @@ mod archivio;
 mod cascata;
 mod correzione;
 mod documenti;
+mod file_atomico;
 mod gguf;
 mod http;
 mod imaging;
@@ -78,11 +79,9 @@ fn esporta(stato: State<'_, Arc<Stato>>) -> String {
 fn salva_file(percorso: String, contenuto: String) -> Esito<String> {
     let percorso = PathBuf::from(percorso);
     if let Some(dir) = percorso.parent() {
-        std::fs::create_dir_all(dir)
-            .map_err(|e| format!("cartella non creabile: {e}"))?;
+        std::fs::create_dir_all(dir).map_err(|e| format!("cartella non creabile: {e}"))?;
     }
-    std::fs::write(&percorso, contenuto)
-        .map_err(|e| format!("salvataggio fallito: {e}"))?;
+    std::fs::write(&percorso, contenuto).map_err(|e| format!("salvataggio fallito: {e}"))?;
     info!("esportato in {}", percorso.display());
     Ok(percorso.display().to_string())
 }
@@ -132,7 +131,10 @@ fn imposta_backend(app: AppHandle, stato: State<'_, Arc<Stato>>, scelta: String)
         return Err("elaborazione in corso: fermarla prima di cambiare backend".into());
     }
     {
-        let mut impostazioni = stato.impostazioni.lock().map_err(|_| "stato inconsistente")?;
+        let mut impostazioni = stato
+            .impostazioni
+            .lock()
+            .map_err(|_| "stato inconsistente")?;
         impostazioni.backend = scelta.clone();
         // `backend_funzionante` non si tocca qui: e' la memoria di cosa ha
         // funzionato da solo in automatico, e una scelta manuale non e' una
@@ -152,7 +154,10 @@ fn imposta_backend(app: AppHandle, stato: State<'_, Arc<Stato>>, scelta: String)
 
 #[tauri::command]
 fn imposta_forza_ocr(stato: State<'_, Arc<Stato>>, valore: bool) -> Esito<()> {
-    let mut impostazioni = stato.impostazioni.lock().map_err(|_| "stato inconsistente")?;
+    let mut impostazioni = stato
+        .impostazioni
+        .lock()
+        .map_err(|_| "stato inconsistente")?;
     impostazioni.forza_ocr = valore;
     impostazioni.salva();
     Ok(())
@@ -214,7 +219,9 @@ fn archivio_salva(
 #[tauri::command]
 fn archivio_carica(app: AppHandle, stato: State<'_, Arc<Stato>>, id: String) -> Esito<usize> {
     if stato.in_corso.load(Ordering::SeqCst) {
-        return Err("c'è un'elaborazione in corso: interrompila prima di aprire un'altra sessione".into());
+        return Err(
+            "c'è un'elaborazione in corso: interrompila prima di aprire un'altra sessione".into(),
+        );
     }
     let mancanti = archivio::carica(&stato, &id)?;
     // Si sta lavorando su una voce che nell'archivio c'e': non ha piu' senso

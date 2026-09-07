@@ -156,8 +156,9 @@ fn attendi_slot_libero(porta: u16) {
                 let libere = valore
                     .as_array()
                     .map(|slot| {
-                        slot.iter()
-                            .all(|s| s.get("is_processing").and_then(|p| p.as_bool()) == Some(false))
+                        slot.iter().all(|s| {
+                            s.get("is_processing").and_then(|p| p.as_bool()) == Some(false)
+                        })
                     })
                     .unwrap_or(true);
                 if libere {
@@ -277,7 +278,8 @@ fn genera_stream(
                         esito.token = timings
                             .get("predicted_n")
                             .and_then(|v| v.as_u64())
-                            .unwrap_or(token_visti as u64) as usize;
+                            .unwrap_or(token_visti as u64)
+                            as usize;
                         esito.token_al_secondo =
                             timings.get("predicted_per_second").and_then(|v| v.as_f64());
                         esito.token_prompt = timings.get("prompt_n").and_then(|v| v.as_u64());

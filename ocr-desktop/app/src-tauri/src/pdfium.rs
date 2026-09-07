@@ -16,6 +16,11 @@ type FpdfPage = *mut c_void;
 type FpdfTextPage = *mut c_void;
 type FpdfBitmap = *mut c_void;
 
+const LATO_MASSIMO: i32 = 20_000;
+const PIXEL_MASSIMI: u64 = 50_000_000;
+const CARATTERI_MASSIMI: usize = 10_000_000;
+const PAGINE_MASSIME: usize = 100_000;
+
 struct Api {
     _lib: Library,
     init: unsafe extern "C" fn(),
@@ -32,7 +37,8 @@ struct Api {
     bitmap_buffer: unsafe extern "C" fn(FpdfBitmap) -> *mut c_void,
     bitmap_stride: unsafe extern "C" fn(FpdfBitmap) -> c_int,
     bitmap_distruggi: unsafe extern "C" fn(FpdfBitmap),
-    renderizza: unsafe extern "C" fn(FpdfBitmap, FpdfPage, c_int, c_int, c_int, c_int, c_int, c_int),
+    renderizza:
+        unsafe extern "C" fn(FpdfBitmap, FpdfPage, c_int, c_int, c_int, c_int, c_int, c_int),
     testo_carica: unsafe extern "C" fn(FpdfPage) -> FpdfTextPage,
     testo_chiudi: unsafe extern "C" fn(FpdfTextPage),
     testo_conta: unsafe extern "C" fn(FpdfTextPage) -> c_int,
@@ -117,13 +123,35 @@ impl Drop for Documento<'_> {
     }
 }
 
+struct PaginaAperta<'a> {
+    api: &'a Api,
+    handle: FpdfPage,
+}
+
+impl Drop for PaginaAperta<'_> {
+    fn drop(&mut self) {
+        unsafe { (self.api.chiudi_pagina)(self.handle) };
+    }
+}
+
+struct Bitmap<'a> {
+    api: &'a Api,
+    handle: FpdfBitmap,
+}
+
+impl Drop for Bitmap<'_> {
+    fn drop(&mut self) {
+        unsafe { (self.api.bitmap_distruggi)(self.handle) };
+    }
+}
+
 fn apri<'a>(api: &'a Api, dati: &[u8]) -> Result<Documento<'a>, String> {
+    let lunghezza: c_int = dati
+        .len()
+        .try_into()
+        .map_err(|_| "PDF troppo grande da aprire")?;
     let handle = unsafe {
-        (api.carica_memoria)(
-            dati.as_ptr() as *const c_void,
-            dati.len() as c_int,
-            std::ptr::null(),
-        )
+        (api.carica_memoria)(dati.as_ptr() as *const c_void, lunghezza, std::ptr::null())
     };
     if handle.is_null() {
         let codice = unsafe { (api.ultimo_errore)() };
@@ -148,7 +176,17 @@ fn testo_pagina(api: &Api, pagina: FpdfPage) -> String {
         return String::new();
     }
     // FPDFText_GetText vuole spazio anche per il terminatore.
-    let mut buffer = vec![0u16; n as usize + 1];
+    let lunghezza = n as usize;
+    if lunghezza > CARATTERI_MASSIMI {
+        unsafe { (api.testo_chiudi)(tp) };
+        return String::new();
+    }
+    let mut buffer = Vec::new();
+    if buffer.try_reserve_exact(lunghezza + 1).is_err() {
+        unsafe { (api.testo_chiudi)(tp) };
+        return String::new();
+    }
+    buffer.resize(lunghezza + 1, 0u16);
     let letti = unsafe { (api.testo_leggi)(tp, 0, n, buffer.as_mut_ptr()) };
     unsafe { (api.testo_chiudi)(tp) };
     if letti <= 0 {
@@ -182,15 +220,22 @@ pub fn analizza(dati: &[u8]) -> Result<Vec<Pagina>, String> {
         if n <= 0 {
             return Err("il PDF non contiene pagine".into());
         }
-        let mut fuori = Vec::with_capacity(n as usize);
+        let numero_pagine = n as usize;
+        if numero_pagine > PAGINE_MASSIME {
+            return Err("il PDF contiene troppe pagine".into());
+        }
+        let mut fuori = Vec::new();
+        fuori
+            .try_reserve_exact(numero_pagine)
+            .map_err(|_| "memoria insufficiente per analizzare il PDF")?;
         for indice in 0..n {
-            let pagina = unsafe { (api.carica_pagina)(doc.handle, indice) };
-            if pagina.is_null() {
+            let handle = unsafe { (api.carica_pagina)(doc.handle, indice) };
+            if handle.is_null() {
                 return Err(format!("pagina {} non apribile", indice + 1));
             }
-            let testo = testo_pagina(api, pagina);
-            let rettangoli = rettangoli_testo(api, pagina);
-            unsafe { (api.chiudi_pagina)(pagina) };
+            let pagina = PaginaAperta { api, handle };
+            let testo = testo_pagina(api, pagina.handle);
+            let rettangoli = rettangoli_testo(api, pagina.handle);
             let utili = testo.chars().filter(|c| !c.is_whitespace()).count();
             fuori.push(Pagina {
                 numero: indice as usize + 1,
@@ -202,39 +247,92 @@ pub fn analizza(dati: &[u8]) -> Result<Vec<Pagina>, String> {
     })
 }
 
+fn dimensioni_render(punti_x: f32, punti_y: f32, dpi: f32) -> Result<(i32, i32, usize), String> {
+    if !dpi.is_finite() || dpi <= 0.0 || !punti_x.is_finite() || !punti_y.is_finite() {
+        return Err("dimensioni pagina non valide".into());
+    }
+    let scala = dpi as f64 / 72.0;
+    let x = punti_x as f64 * scala;
+    let y = punti_y as f64 * scala;
+    if x <= 0.0 || y <= 0.0 || x > c_int::MAX as f64 || y > c_int::MAX as f64 {
+        return Err("dimensioni pagina non valide".into());
+    }
+    let larghezza = (x.round() as i32).max(1);
+    let altezza = (y.round() as i32).max(1);
+    let pixel = (larghezza as u64)
+        .checked_mul(altezza as u64)
+        .ok_or("dimensioni pagina non valide")?;
+    if larghezza > LATO_MASSIMO || altezza > LATO_MASSIMO || pixel > PIXEL_MASSIMI {
+        return Err("pagina troppo grande da renderizzare".into());
+    }
+    let byte_rgb = usize::try_from(pixel)
+        .ok()
+        .and_then(|n| n.checked_mul(3))
+        .ok_or("dimensioni pagina non valide")?;
+    Ok((larghezza, altezza, byte_rgb))
+}
+
+fn valida_bitmap(
+    buffer: *const u8,
+    stride: c_int,
+    larghezza: usize,
+    altezza: usize,
+) -> Result<usize, String> {
+    if buffer.is_null() || stride <= 0 {
+        return Err("bitmap PDFium non valida".into());
+    }
+    let stride = stride as usize;
+    let byte_riga = larghezza.checked_mul(4).ok_or("bitmap PDFium non valida")?;
+    if stride < byte_riga || stride.checked_mul(altezza).is_none() {
+        return Err("bitmap PDFium non valida".into());
+    }
+    Ok(stride)
+}
+
 /// Renderizza una pagina a `dpi` e restituisce (larghezza, altezza, RGB8).
 pub fn renderizza(dati: &[u8], indice: usize, dpi: f32) -> Result<(u32, u32, Vec<u8>), String> {
     con_api(|api| {
         let doc = apri(api, dati)?;
-        let pagina = unsafe { (api.carica_pagina)(doc.handle, indice as c_int) };
-        if pagina.is_null() {
+        let indice_pdfium: c_int = indice.try_into().map_err(|_| "indice pagina non valido")?;
+        let handle = unsafe { (api.carica_pagina)(doc.handle, indice_pdfium) };
+        if handle.is_null() {
             return Err(format!("pagina {} non apribile", indice + 1));
         }
-        let scala = dpi / 72.0;
-        let larghezza = ((unsafe { (api.larghezza)(pagina) } * scala).round() as i32).max(1);
-        let altezza = ((unsafe { (api.altezza)(pagina) } * scala).round() as i32).max(1);
-        // Un limite prudente: oltre questa misura il canvas 960x1248 non guadagna
-        // niente e la memoria esplode su PDF con pagine enormi.
-        if larghezza > 20000 || altezza > 20000 {
-            unsafe { (api.chiudi_pagina)(pagina) };
-            return Err("pagina troppo grande da renderizzare".into());
-        }
+        let pagina = PaginaAperta { api, handle };
+        let (larghezza, altezza, byte_rgb) = dimensioni_render(
+            unsafe { (api.larghezza)(pagina.handle) },
+            unsafe { (api.altezza)(pagina.handle) },
+            dpi,
+        )?;
         // alpha = 0: PDFium alloca un buffer BGRx a 4 byte per pixel.
-        let bitmap = unsafe { (api.bitmap_crea)(larghezza, altezza, 0) };
-        if bitmap.is_null() {
-            unsafe { (api.chiudi_pagina)(pagina) };
+        let handle = unsafe { (api.bitmap_crea)(larghezza, altezza, 0) };
+        if handle.is_null() {
             return Err("bitmap PDFium non allocabile".into());
         }
-        unsafe {
-            (api.bitmap_riempi)(bitmap, 0, 0, larghezza, altezza, 0xFFFF_FFFF);
-            // flag 0: niente annotazioni, come il rendering della pipeline.
-            (api.renderizza)(bitmap, pagina, 0, 0, larghezza, altezza, 0, 0);
+        let bitmap = Bitmap { api, handle };
+        let riempita =
+            unsafe { (api.bitmap_riempi)(bitmap.handle, 0, 0, larghezza, altezza, 0xFFFF_FFFF) };
+        if riempita == 0 {
+            return Err("bitmap PDFium non inizializzabile".into());
         }
-        let stride = unsafe { (api.bitmap_stride)(bitmap) } as usize;
-        let buffer = unsafe { (api.bitmap_buffer)(bitmap) } as *const u8;
-        let mut rgb = vec![0u8; larghezza as usize * altezza as usize * 3];
+        unsafe {
+            // flag 0: niente annotazioni, come il rendering della pipeline.
+            (api.renderizza)(bitmap.handle, pagina.handle, 0, 0, larghezza, altezza, 0, 0);
+        }
+        let buffer = unsafe { (api.bitmap_buffer)(bitmap.handle) } as *const u8;
+        let stride = valida_bitmap(
+            buffer,
+            unsafe { (api.bitmap_stride)(bitmap.handle) },
+            larghezza as usize,
+            altezza as usize,
+        )?;
+        let byte_riga = larghezza as usize * 4;
+        let mut rgb = Vec::new();
+        rgb.try_reserve_exact(byte_rgb)
+            .map_err(|_| "memoria insufficiente per renderizzare il PDF")?;
+        rgb.resize(byte_rgb, 0u8);
         for y in 0..altezza as usize {
-            let riga = unsafe { std::slice::from_raw_parts(buffer.add(y * stride), stride) };
+            let riga = unsafe { std::slice::from_raw_parts(buffer.add(y * stride), byte_riga) };
             for x in 0..larghezza as usize {
                 let p = x * 4;
                 let d = (y * larghezza as usize + x) * 3;
@@ -244,10 +342,29 @@ pub fn renderizza(dati: &[u8], indice: usize, dpi: f32) -> Result<(u32, u32, Vec
                 rgb[d + 2] = riga[p];
             }
         }
-        unsafe {
-            (api.bitmap_distruggi)(bitmap);
-            (api.chiudi_pagina)(pagina);
-        }
         Ok((larghezza as u32, altezza as u32, rgb))
     })
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn limita_anche_il_numero_totale_di_pixel() {
+        assert!(dimensioni_render(612.0, 792.0, 150.0).is_ok());
+        let errore = dimensioni_render(14_400.0, 14_400.0, 72.0).unwrap_err();
+        assert_eq!(errore, "pagina troppo grande da renderizzare");
+        assert!(dimensioni_render(f32::NAN, 792.0, 150.0).is_err());
+        assert!(dimensioni_render(612.0, 792.0, 0.0).is_err());
+    }
+
+    #[test]
+    fn rifiuta_buffer_null_e_stride_corti() {
+        assert!(valida_bitmap(std::ptr::null(), 400, 100, 100).is_err());
+        let buffer = std::ptr::NonNull::<u8>::dangling().as_ptr();
+        assert!(valida_bitmap(buffer, 0, 100, 100).is_err());
+        assert!(valida_bitmap(buffer, 399, 100, 100).is_err());
+        assert_eq!(valida_bitmap(buffer, 400, 100, 100).unwrap(), 400);
+    }
 }

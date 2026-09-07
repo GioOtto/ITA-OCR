@@ -52,7 +52,10 @@ pub fn dispositivi(binario: &Path, dir: &Path) -> Vec<Dispositivo> {
     piattaforma::nascondi_console(&mut comando);
     let uscita = comando
         .arg("--list-devices")
-        .env(piattaforma::VARIABILE_LIBRERIE, piattaforma::percorso_librerie(dir))
+        .env(
+            piattaforma::VARIABILE_LIBRERIE,
+            piattaforma::percorso_librerie(dir),
+        )
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
         .output();
@@ -258,7 +261,10 @@ impl Motore {
             .try_clone()
             .map_err(|e| format!("log del motore non duplicabile: {e}"))?;
         comando
-            .env(piattaforma::VARIABILE_LIBRERIE, piattaforma::percorso_librerie(&dir))
+            .env(
+                piattaforma::VARIABILE_LIBRERIE,
+                piattaforma::percorso_librerie(&dir),
+            )
             .stdin(Stdio::null())
             .stdout(Stdio::from(uscita))
             .stderr(Stdio::from(errori));

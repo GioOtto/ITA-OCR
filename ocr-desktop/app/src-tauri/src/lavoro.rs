@@ -7,7 +7,7 @@
 
 use crate::documenti::{self, Documento};
 use crate::motore::{Backend, Motore};
-use crate::{attenzione, cascata, correzione, errore, imaging, info, risorse};
+use crate::{attenzione, cascata, correzione, errore, file_atomico, imaging, info, risorse};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -175,11 +175,10 @@ impl Impostazioni {
 
     pub fn salva(&self) {
         let percorso = Self::percorso();
-        if let Some(dir) = percorso.parent() {
-            let _ = std::fs::create_dir_all(dir);
-        }
         if let Ok(testo) = serde_json::to_string_pretty(self) {
-            let _ = std::fs::write(percorso, testo);
+            if let Err(e) = file_atomico::scrivi(&percorso, testo.as_bytes()) {
+                attenzione!("impostazioni non salvate: {e}");
+            }
         }
     }
 
@@ -306,10 +305,7 @@ pub fn aggiungi(app: &AppHandle, stato: &Stato, percorsi: Vec<PathBuf>) -> Vec<S
     let mut problemi = Vec::new();
     for percorso in percorsi {
         if !documenti::e_supportato(&percorso) {
-            problemi.push(format!(
-                "{}: formato non supportato",
-                nome_breve(&percorso)
-            ));
+            problemi.push(format!("{}: formato non supportato", nome_breve(&percorso)));
             continue;
         }
         match documenti::apri(&percorso, forza) {
@@ -534,16 +530,17 @@ fn applica_preferenze_correzione(pagina: &mut Pagina, dizionario: bool, contesto
     } else if dizionario {
         (&pagina.testo_corretto, Some(&pagina.dettagli_correzione))
     } else {
-        (&pagina.testo_contestuale, Some(&pagina.dettagli_contestuali))
+        (
+            &pagina.testo_contestuale,
+            Some(&pagina.dettagli_contestuali),
+        )
     };
     pagina.testo = testo.clone();
     pagina.correzioni = dettagli.map_or(0, |d| d.len());
-    pagina.correzioni_dizionario = dettagli.map_or(0, |d| {
-        d.iter().filter(|c| c.metodo == "dizionario").count()
-    });
-    pagina.correzioni_contesto = dettagli.map_or(0, |d| {
-        d.iter().filter(|c| c.metodo == "contesto").count()
-    });
+    pagina.correzioni_dizionario =
+        dettagli.map_or(0, |d| d.iter().filter(|c| c.metodo == "dizionario").count());
+    pagina.correzioni_contesto =
+        dettagli.map_or(0, |d| d.iter().filter(|c| c.metodo == "contesto").count());
     pagina.caratteri = pagina.testo.chars().count();
 }
 
@@ -561,12 +558,18 @@ fn postcorreggi(
         info!("caricamento del dizionario italiano da {}", dir.display());
         let dir_inglese = risorse::dir_dizionario_inglese();
         match &dir_inglese {
-            Some(d) => info!("dizionario inglese da {} (solo riconoscimento)", d.display()),
-            None => attenzione!(
-                "dizionario inglese assente: le parole inglesi non saranno protette"
+            Some(d) => info!(
+                "dizionario inglese da {} (solo riconoscimento)",
+                d.display()
             ),
+            None => {
+                attenzione!("dizionario inglese assente: le parole inglesi non saranno protette")
+            }
         }
-        *slot = Some(correzione::Correttore::carica(&dir, dir_inglese.as_deref())?);
+        *slot = Some(correzione::Correttore::carica(
+            &dir,
+            dir_inglese.as_deref(),
+        )?);
     }
     Ok(slot
         .as_ref()
@@ -582,7 +585,10 @@ pub fn imposta_correzione_automatica(
     valore: bool,
 ) -> Result<(), String> {
     {
-        let mut impostazioni = stato.impostazioni.lock().map_err(|_| "stato inconsistente")?;
+        let mut impostazioni = stato
+            .impostazioni
+            .lock()
+            .map_err(|_| "stato inconsistente")?;
         impostazioni.correzione_automatica = valore;
         impostazioni.salva();
     }
@@ -614,7 +620,10 @@ pub fn imposta_correzione_contestuale(
         return Err("La correzione contestuale richiede un lessico locale aggiuntivo, non incluso nel pacchetto.".into());
     }
     let dizionario = {
-        let mut impostazioni = stato.impostazioni.lock().map_err(|_| "stato inconsistente")?;
+        let mut impostazioni = stato
+            .impostazioni
+            .lock()
+            .map_err(|_| "stato inconsistente")?;
         impostazioni.correzione_contestuale = valore;
         let dizionario = impostazioni.correzione_automatica;
         impostazioni.salva();
@@ -962,7 +971,10 @@ pub fn elabora(app: AppHandle, stato: Arc<Stato>) {
                     info!(
                         "pagina {id}: {} correzioni da dizionario, {} contestuali",
                         varianti.dizionario.correzioni.len(),
-                        varianti.entrambe.correzioni.len()
+                        varianti
+                            .entrambe
+                            .correzioni
+                            .len()
                             .saturating_sub(varianti.dizionario.correzioni.len())
                     );
                 }
@@ -1233,7 +1245,14 @@ mod test {
         let stato = stato_con(vec![veloce, incompleta]);
         let fuori = esporta(&stato);
         assert_eq!(fuori, "prima pagina\n\nmeta' pagina\n\n");
-        for intruso in ["Pagina", "PAGINA", "appunti.pdf", "#", "=====", "ripetizione"] {
+        for intruso in [
+            "Pagina",
+            "PAGINA",
+            "appunti.pdf",
+            "#",
+            "=====",
+            "ripetizione",
+        ] {
             assert!(!fuori.contains(intruso), "trovato {intruso} in {fuori:?}");
         }
     }
