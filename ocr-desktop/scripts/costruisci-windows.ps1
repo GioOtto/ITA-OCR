@@ -34,6 +34,8 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $COMMIT_LLAMA = "4df29be"
+$PDFIUM_TAG = "chromium/8021"
+$PDFIUM_SHA256 = "adac8ce034015427b5daa81f8eeddfcc8e84bc2a9f036f007890ff18bd4388c4"
 $Radice   = Split-Path -Parent $PSScriptRoot
 $App      = Join-Path $Radice "app\src-tauri"
 $Dist     = Join-Path $Radice "dist"
@@ -266,9 +268,13 @@ try {
   Titolo "PDFium"
   $zipPdfium = Join-Path $Dist "pdfium-win.tgz"
   if (-not (Test-Path (Join-Path $Uscita "pdfium.dll"))) {
-    $urlPdfium = "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-win-x64.tgz"
+    $urlPdfium = "https://github.com/bblanchon/pdfium-binaries/releases/download/$PDFIUM_TAG/pdfium-win-x64.tgz"
     Nota "scarico $urlPdfium"
     Invoke-WebRequest -Uri $urlPdfium -OutFile $zipPdfium
+    $shaPdfium = (Get-FileHash $zipPdfium -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($shaPdfium -ne $PDFIUM_SHA256) {
+      throw "SHA-256 di PDFium non valido: atteso $PDFIUM_SHA256, trovato $shaPdfium"
+    }
     $tempPdfium = Join-Path $Dist "pdfium-tmp"
     New-Item -ItemType Directory -Force -Path $tempPdfium | Out-Null
     Esegui "estrazione di PDFium" "tar" @("-xzf", $zipPdfium, "-C", $tempPdfium)
@@ -311,7 +317,7 @@ try {
   # ------------------------------------------------------------ applicazione
   Titolo "applicazione (Tauri + Rust)"
   Push-Location $App
-  Esegui "compilazione dell'applicazione" "cargo" @("build", "--release")
+  Esegui "compilazione dell'applicazione" "cargo" @("build", "--release", "--locked")
   Pop-Location
   Copy-Item (Join-Path $App "target\release\ocr-ita-desktop.exe") $Uscita
   & (Join-Path $PSScriptRoot "aggiorna-icone-windows.ps1") -Percorsi @(
