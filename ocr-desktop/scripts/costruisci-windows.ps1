@@ -326,7 +326,7 @@ try {
 
   # Licenze incluse anche nel pacchetto portabile.
   $repo = Split-Path -Parent $Radice
-  Copy-Item -LiteralPath (Join-Path $repo "LICENSE"), (Join-Path $repo "TERZE-PARTI.md") -Destination $Uscita
+  Copy-Item -LiteralPath (Join-Path $repo "LICENSE"), (Join-Path $repo "docs\it\TERZE-PARTI.md") -Destination $Uscita
   Copy-Item -LiteralPath (Join-Path $repo "licenses") -Destination $Uscita -Recurse
 
   # ---------------------------------------------------------------- modelli
