@@ -1,7 +1,8 @@
 //! Ciclo di vita di `llama-server`: scelta del backend, avvio, salute, chiusura.
 //!
 //! Il protocollo e' quello gia' misurato: `-c 8192 -np 1 --no-cache-prompt
-//! --cache-ram 0`, override dell'`eot` per rimettere in gioco entrambi gli stop
+//! --cache-ram 0` (riuso della KV solo nei retry della stessa pagina), override
+//! dell'`eot` per rimettere in gioco entrambi gli stop
 //! ufficiali di GLM-OCR. I backend GPU sono CUDA (NVIDIA) e Vulkan (AMD e
 //! Intel), scelti in quest'ordine quando la scelta e' automatica, con la CPU
 //! come rete di sicurezza. **ROCm non viene mai usato**: non e' nemmeno
@@ -118,11 +119,30 @@ fn porta_libera() -> Result<u16, String> {
     Ok(porta)
 }
 
-fn thread_consigliati() -> usize {
-    let disponibili = std::thread::available_parallelism()
-        .map(|n| n.get())
-        .unwrap_or(8);
-    disponibili.saturating_sub(2).clamp(4, 32)
+fn thread_consigliati(backend: Backend, disponibili: usize) -> usize {
+    // Profilo prudente per il piccolo modello Q8: usare quasi tutti i thread
+    // logici puo' rallentare la generazione. Con offload completo alla GPU
+    // bastano meno worker host. Non superare mai la disponibilita' effettiva.
+    let massimo = match backend {
+        Backend::Cpu => 8,
+        Backend::Cuda | Backend::Vulkan => 4,
+    };
+    disponibili.saturating_sub(2).max(1).min(massimo)
+}
+
+fn thread_da_ambiente(nome: &str, predefinito: usize, disponibili: usize) -> usize {
+    let Ok(valore) = std::env::var(nome) else {
+        return predefinito;
+    };
+    match valore.parse::<usize>() {
+        Ok(n) if n > 0 && n <= disponibili => n,
+        _ => {
+            attenzione!(
+                "{nome} non valido: usare un numero fra 1 e {disponibili}; uso {predefinito}"
+            );
+            predefinito
+        }
+    }
 }
 
 pub struct Motore {
@@ -132,6 +152,8 @@ pub struct Motore {
     pub dispositivo: String,
     pub prompt: String,
     pub thread: usize,
+    pub thread_batch: usize,
+    pub thread_vision: usize,
     pub log_server: PathBuf,
     pub modello: PathBuf,
     pub mmproj: PathBuf,
@@ -185,7 +207,16 @@ impl Motore {
         let binario = risorse::binario_llama()?;
         let (modello, mmproj) = risorse::modelli()?;
         let porta = porta_libera()?;
-        let thread = thread_consigliati();
+        let disponibili = std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(1);
+        let thread = thread_da_ambiente(
+            "OCR_ITA_THREADS",
+            thread_consigliati(backend, disponibili),
+            disponibili,
+        );
+        let thread_batch = thread_da_ambiente("OCR_ITA_THREADS_BATCH", thread, disponibili);
+        let thread_vision = thread_da_ambiente("OCR_ITA_THREADS_VISION", thread, disponibili);
         let dir_log = risorse::dir_log();
         std::fs::create_dir_all(&dir_log).ok();
         let log_server = dir_log.join("llama-server.log");
@@ -204,10 +235,11 @@ impl Motore {
             .args(["-c", "8192"])
             .args(["-np", "1"])
             .args(["-t", &thread.to_string()])
-            .args(["-tb", &thread.to_string()])
+            .args(["-tb", &thread_batch.to_string()])
+            .env("MTMD_N_THREADS", thread_vision.to_string())
             .arg("--no-cache-prompt")
-            // 8192 MiB di prompt cache in RAM host che nel nostro carico non
-            // fanno mai centro: ogni pagina e' un'immagine diversa.
+            // Non serve la prompt cache da 8192 MiB in RAM host: il retry
+            // riusa la KV della sola slot gia' attiva.
             .args(["--cache-ram", "0"])
             .arg("--no-webui")
             .args(["-a", piattaforma::ALIAS_MOTORE])
@@ -277,7 +309,7 @@ impl Motore {
         }
 
         info!(
-            "avvio motore: backend {} ({}), porta {porta}, {thread} thread",
+            "avvio motore: backend {} ({}), porta {porta}, {thread} thread, {thread_batch} thread batch, {thread_vision} thread visione",
             backend.chiave(),
             descrizione_dispositivo
         );
@@ -363,6 +395,8 @@ impl Motore {
             dispositivo: descrizione_dispositivo,
             prompt: prompt_renderizzato(&marcatore),
             thread,
+            thread_batch,
+            thread_vision,
             log_server,
             modello,
             mmproj,
@@ -457,4 +491,24 @@ pub fn coda_log(percorso: &Path, righe: usize) -> String {
     let tutte: Vec<String> = BufReader::new(file).lines().map_while(Result::ok).collect();
     let da = tutte.len().saturating_sub(righe);
     tutte[da..].join("\n")
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn i_profili_rispettano_anche_cpu_piccole_o_limitate() {
+        for backend in [Backend::Cpu, Backend::Vulkan, Backend::Cuda] {
+            for disponibili in 1..=128 {
+                let n = thread_consigliati(backend, disponibili);
+                assert!((1..=disponibili).contains(&n));
+                if disponibili > 2 {
+                    assert!(n <= disponibili - 2);
+                }
+            }
+        }
+        assert_eq!(thread_consigliati(Backend::Cpu, 24), 8);
+        assert_eq!(thread_consigliati(Backend::Vulkan, 24), 4);
+    }
 }

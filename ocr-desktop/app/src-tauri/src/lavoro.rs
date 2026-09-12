@@ -33,6 +33,8 @@ pub struct DettaglioTentativo {
     pub token: usize,
     pub secondi: f64,
     pub token_al_secondo: Option<f64>,
+    #[serde(default)]
+    pub tempi: cascata::TempiInferenza,
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -98,6 +100,8 @@ pub struct InfoMotore {
     pub dispositivo: String,
     pub messaggio: Option<String>,
     pub thread: usize,
+    pub thread_batch: usize,
+    pub thread_vision: usize,
     pub porta: u16,
     pub avvio_secondi: f64,
     pub modello: String,
@@ -114,6 +118,8 @@ impl Default for InfoMotore {
             dispositivo: String::new(),
             messaggio: None,
             thread: 0,
+            thread_batch: 0,
+            thread_vision: 0,
             porta: 0,
             avvio_secondi: 0.0,
             modello: String::new(),
@@ -444,6 +450,8 @@ pub fn assicura_motore(app: &AppHandle, stato: &Arc<Stato>) -> Result<(u16, Stri
                 dispositivo: motore.dispositivo.clone(),
                 messaggio: None,
                 thread: motore.thread,
+                thread_batch: motore.thread_batch,
+                thread_vision: motore.thread_vision,
                 porta: motore.porta,
                 avvio_secondi: motore.avvio_secondi,
                 modello: motore.modello.display().to_string(),
@@ -929,6 +937,7 @@ pub fn elabora(app: AppHandle, stato: Arc<Stato>) {
                         token: t.token,
                         secondi: t.secondi,
                         token_al_secondo: t.token_al_secondo,
+                        tempi: t.tempi.clone(),
                     })
                     .collect();
                 let token_prompt = esito.token_prompt;
@@ -1188,6 +1197,16 @@ pub fn riepilogo(stato: &Stato) -> HashMap<String, usize> {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn i_tentativi_archiviati_senza_tempi_dettagliati_restano_leggibili() {
+        let vecchio =
+            r#"{"stadio":"greedy","esito":"eos","token":10,"secondi":1.0,"token_al_secondo":10.0}"#;
+        let dettaglio: DettaglioTentativo = serde_json::from_str(vecchio).unwrap();
+        assert!(dettaglio.tempi.primo_token_secondi.is_none());
+        assert!(dettaglio.tempi.prompt_secondi.is_none());
+        assert!(dettaglio.tempi.generazione_secondi.is_none());
+    }
 
     fn pagina_finta(id: &str, numero: usize, stato: StatoPagina, testo: &str) -> Pagina {
         Pagina {

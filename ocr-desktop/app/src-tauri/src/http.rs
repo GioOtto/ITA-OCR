@@ -93,9 +93,8 @@ impl Risposta {
             } else {
                 self.grezzi.len()
             };
-            let coda = self.grezzi.split_off(quanti);
-            self.corpo.append(&mut self.grezzi);
-            self.grezzi = coda;
+            self.corpo.extend_from_slice(&self.grezzi[..quanti]);
+            self.grezzi.drain(..quanti);
             if self.lunghezza_nota {
                 self.residuo -= quanti;
                 if self.residuo == 0 {
@@ -137,9 +136,8 @@ impl Risposta {
                 return Ok(());
             }
             let quanti = self.residuo.min(self.grezzi.len());
-            let coda = self.grezzi.split_off(quanti);
-            self.corpo.extend_from_slice(&self.grezzi);
-            self.grezzi = coda;
+            self.corpo.extend_from_slice(&self.grezzi[..quanti]);
+            self.grezzi.drain(..quanti);
             self.residuo -= quanti;
             if self.residuo == 0 {
                 self.attesa_crlf = true;
@@ -149,11 +147,10 @@ impl Risposta {
 
     fn stacca_riga(&mut self) -> Option<String> {
         let posizione = self.corpo.iter().position(|b| *b == b'\n')?;
-        let riga: Vec<u8> = self.corpo.drain(..=posizione).collect();
-        let mut testo = String::from_utf8_lossy(&riga).to_string();
-        while testo.ends_with('\n') || testo.ends_with('\r') {
-            testo.pop();
-        }
+        let testo = String::from_utf8_lossy(&self.corpo[..posizione])
+            .trim_end_matches('\r')
+            .to_string();
+        self.corpo.drain(..=posizione);
         Some(testo)
     }
 
@@ -331,6 +328,71 @@ mod test {
 
     fn chunk(testo: &str) -> String {
         format!("{:x}\r\n{testo}\r\n", testo.len())
+    }
+
+    #[test]
+    fn conserva_tutti_gli_eventi_e_utf8_frammentato() {
+        use std::io::{BufRead, BufReader};
+        for chunked in [false, true] {
+            let riga = "data: {\"content\":\"perché è già così\"}";
+            let corpo = format!("{riga}\r\n\r\n").repeat(4096);
+            let listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+            let porta = listener.local_addr().unwrap().port();
+            let server = thread::spawn(move || {
+                let (mut socket, _) = listener.accept().unwrap();
+                let mut richiesta = BufReader::new(&socket);
+                loop {
+                    let mut riga = String::new();
+                    assert!(richiesta.read_line(&mut riga).unwrap() > 0);
+                    if riga == "\r\n" {
+                        break;
+                    }
+                }
+                drop(richiesta);
+                let mut dati = if chunked {
+                    b"HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n".to_vec()
+                } else {
+                    format!("HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n", corpo.len())
+                        .into_bytes()
+                };
+                if chunked {
+                    // I chunk possono spezzare anche un carattere UTF-8.
+                    for pezzo in corpo.as_bytes().chunks(7) {
+                        dati.extend_from_slice(format!("{:x};test=1\r\n", pezzo.len()).as_bytes());
+                        dati.extend_from_slice(pezzo);
+                        dati.extend_from_slice(b"\r\n");
+                    }
+                    dati.extend_from_slice(b"0\r\nX-Test: fine\r\n\r\n");
+                } else {
+                    dati.extend_from_slice(corpo.as_bytes());
+                }
+                for pezzo in dati.chunks(2047) {
+                    socket.write_all(pezzo).unwrap();
+                }
+            });
+            let mut risposta = apri(
+                porta,
+                "GET",
+                "/eventi",
+                None,
+                Duration::from_secs(1),
+                Duration::from_secs(1),
+            )
+            .unwrap();
+            let mut eventi = 0;
+            loop {
+                match risposta.prossima_riga().unwrap() {
+                    Pezzo::Riga(testo) if !testo.is_empty() => {
+                        assert_eq!(testo, riga);
+                        eventi += 1;
+                    }
+                    Pezzo::Fine => break,
+                    _ => {}
+                }
+            }
+            assert_eq!(eventi, 4096);
+            server.join().unwrap();
+        }
     }
 
     #[test]

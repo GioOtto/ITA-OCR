@@ -1330,6 +1330,8 @@ async function aggiornaDiagnostica() {
     ["stato", m.fase],
     ["porta locale", m.porta || "—"],
     ["thread", m.thread || "—"],
+    ["thread batch", m.thread_batch || "—"],
+    ["thread visione", m.thread_vision || "—"],
     ["caricamento", m.avvio_secondi ? `${m.avvio_secondi.toFixed(1)} s` : "—"],
     ["language model", m.modello ? m.modello.split("/").pop() : "—"],
     ["torre visiva", m.mmproj ? m.mmproj.split("/").pop() : "—"],
@@ -1396,6 +1398,15 @@ async function aggiornaDiagnostica() {
         misure.textContent = `${t.secondi.toFixed(2)} s · ${t.token} token${
           t.token_al_secondo ? ` · ${t.token_al_secondo.toFixed(0)} tok/s` : ""
         }`;
+        if (t.tempi?.primo_token_secondi != null) {
+          misure.textContent += ` · primo token ${t.tempi.primo_token_secondi.toFixed(2)} s`;
+        }
+        if (t.tempi?.prompt_secondi != null) {
+          misure.textContent += ` · visione + prefill ${t.tempi.prompt_secondi.toFixed(2)} s`;
+        }
+        if (t.tempi?.generazione_secondi != null) {
+          misure.textContent += ` · generazione ${t.tempi.generazione_secondi.toFixed(2)} s`;
+        }
         passo.append(nome, misure);
         dettaglio.append(passo);
       }

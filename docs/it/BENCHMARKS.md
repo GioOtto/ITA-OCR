@@ -7,6 +7,9 @@ i documenti originali, le trascrizioni di riferimento o identificatori dei
 partecipanti. Le schermate usano contenuti sintetici e non costituiscono un
 benchmark dell'OCR.
 
+Per i profili CPU/GPU e il confronto dei tempi di inferenza, vedere
+[Prestazioni dell'inferenza](INFERENZA.md).
+
 ## Metodo
 
 Le valutazioni interne confrontano il modello base con il fine-tuning su

@@ -34,6 +34,7 @@ else
 fi
 
 echo "==> llama.cpp: Vulkan + varianti CPU caricate a runtime"
+bash "$RADICE/scripts/patch-motore.sh" "$LLAMA_SORGENTE"
 # GGML_BACKEND_DL + GGML_CPU_ALL_VARIANTS: un solo eseguibile che a runtime
 # sceglie da solo fra x64 generico, SSE4.2, AVX, AVX2/FMA/F16C/BMI2, AVX-VNNI e
 # le varianti AVX-512. Niente binari separati scelti a mano dall'utente.

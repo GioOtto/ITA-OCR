@@ -127,6 +127,7 @@ jobs:
             Write-Host "architetture: $($archi -join ' ')"
             $extra += "-DCMAKE_CUDA_ARCHITECTURES=$($archi -join ';')"
           }
+          & ./ocr-desktop/scripts/patch-motore.ps1 -Llama llama.cpp
           cmake -S llama.cpp -B build-llama `
             -DCMAKE_BUILD_TYPE=Release `
             -DGGML_NATIVE=OFF `

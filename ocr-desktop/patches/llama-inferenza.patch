@@ -1,0 +1,55 @@
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index fdc8f2b..7307562 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -20,6 +20,7 @@
+ #include <algorithm>
+ #include <cstddef>
+ #include <cinttypes>
++#include <cstdlib>
+ #include <exception>
+ #include <memory>
+ #include <filesystem>
+@@ -716,6 +717,7 @@ static int process_mtmd_chunk(const server_slot & slot, mtmd::batch_ptr & mbatch
+                 };
+ 
+                 llama_pos new_n_past; // unused for now
++                const int64_t t_prefill = ggml_time_us();
+                 res = mtmd_helper_decode_image_chunk(
+                     mctx,
+                     slot.ctx_tgt,
+@@ -728,6 +730,7 @@ static int process_mtmd_chunk(const server_slot & slot, mtmd::batch_ptr & mbatch
+                     cb,
+                     cb_data
+                 );
++                SLT_INF(slot, "image prefill = %.3f ms\n", (ggml_time_us() - t_prefill) / 1000.0);
+                 if (res != 0) {
+                     SLT_ERR(slot, "failed to decode mtmd chunk, idx = %zu, res = %d\n", idx, res);
+                     return -1;
+@@ -773,7 +776,9 @@ static int process_mtmd_chunk(const server_slot & slot, mtmd::batch_ptr & mbatch
+     // TODO @ngxson : move this log line to debug when it become more stable
+     SLT_TRC(slot, "encoding mtmd batch from idx = %zu, n_chunks = %d\n", idx, n_added);
+ 
++    const int64_t t_vision = ggml_time_us();
+     res = mtmd_batch_encode(mbatch.get());
++    SLT_INF(slot, "vision encode = %.3f ms\n", (ggml_time_us() - t_vision) / 1000.0);
+     if (res != 0) {
+         SLT_ERR(slot, "failed to encode mtmd batch for chunk idx = %zu, res = %d\n", idx, res);
+         return -1;
+@@ -988,6 +993,16 @@ private:
+             mparams.use_gpu          = params_base.mmproj_use_gpu;
+             mparams.print_timings    = false;
+             mparams.n_threads        = params_base.cpuparams.n_threads;
++            if (const char * value = std::getenv("MTMD_N_THREADS")) {
++                char * end = nullptr;
++                const long n = std::strtol(value, &end, 10);
++                if (end != value && *end == '\0' && n > 0 && n <= 1024) {
++                    mparams.n_threads = (int) n;
++                } else {
++                    SRV_WRN("invalid MTMD_N_THREADS, using %d\n", mparams.n_threads);
++                }
++            }
++            SRV_INF("vision threads = %d\n", mparams.n_threads);
+             mparams.flash_attn_type  = params_base.flash_attn_type;
+             mparams.warmup           = params_base.warmup;
+             mparams.image_min_tokens = params_base.image_min_tokens;

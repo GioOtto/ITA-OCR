@@ -142,6 +142,8 @@ pub fn esegui(opzioni: Opzioni) -> i32 {
                 riga("dispositivo", &m.dispositivo);
                 riga("porta locale", m.porta);
                 riga("thread", m.thread);
+                riga("thread batch", m.thread_batch);
+                riga("thread visione", m.thread_vision);
                 riga("caricamento", format!("{:.1} s", m.avvio_secondi));
                 riga("pid llama-server", m.pid().unwrap_or(0));
                 motore = Some(m);
@@ -231,6 +233,20 @@ pub fn esegui(opzioni: Opzioni) -> i32 {
                         println!();
                     }
                     secondi_vlm += esito.secondi;
+                    for tentativo in &esito.tentativi {
+                        let formato = |valore: Option<f64>| {
+                            valore
+                                .map(|s| format!("{s:.3} s"))
+                                .unwrap_or_else(|| "n/d".into())
+                        };
+                        println!(
+                            "  {}: primo token {} · visione + prefill {} · generazione {}",
+                            tentativo.stadio,
+                            formato(tentativo.tempi.primo_token_secondi),
+                            formato(tentativo.tempi.prompt_secondi),
+                            formato(tentativo.tempi.generazione_secondi)
+                        );
+                    }
                     let stato = if esito.annullata {
                         annullate += 1;
                         "ANNULLATA"

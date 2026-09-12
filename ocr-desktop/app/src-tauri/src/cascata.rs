@@ -130,6 +130,15 @@ pub struct Esito {
     pub token_al_secondo: Option<f64>,
     pub token_prompt: Option<u64>,
     pub descrizione_ciclo: Option<String>,
+    pub tempi: TempiInferenza,
+}
+
+#[derive(Clone, Default, serde::Serialize, serde::Deserialize)]
+pub struct TempiInferenza {
+    pub primo_token_secondi: Option<f64>,
+    /// Il server include qui anche la codifica visiva.
+    pub prompt_secondi: Option<f64>,
+    pub generazione_secondi: Option<f64>,
 }
 
 /// Cosa la UI deve sapere mentre la generazione procede.
@@ -176,6 +185,7 @@ fn attendi_slot_libero(porta: u16) {
 fn genera_stream(
     contesto: &Contesto,
     extra: &serde_json::Value,
+    riusa_prompt: bool,
     rilevatore: Option<&mut RilevatoreCiclo>,
     interrompi: bool,
     su_evento: &mut dyn FnMut(Evento),
@@ -188,7 +198,10 @@ fn genera_stream(
         "n_predict": N_PREDICT,
         "temperature": 0,
         "seed": 0,
-        "cache_prompt": false,
+        // La slot conserva gia' la KV: nei retry della stessa pagina possiamo
+        // riusare immagine e prompt, eliminando il prefill ripetuto. Il primo
+        // tentativo di ogni pagina resta senza cache, anche fra documenti.
+        "cache_prompt": riusa_prompt,
         "return_tokens": true,
         "stream": true,
     });
@@ -255,16 +268,24 @@ fn genera_stream(
                     .get("content")
                     .and_then(|c| c.as_str())
                     .unwrap_or_default();
+                let ricevuto_a = inizio.elapsed().as_secs_f64();
                 if !contenuto.is_empty() {
                     pezzi.push_str(contenuto);
                     su_evento(Evento::Testo(contenuto));
                 }
-                let nuovi: Vec<i64> = dato
+                let nuovi = dato
                     .get("tokens")
                     .and_then(|t| t.as_array())
-                    .map(|a| a.iter().filter_map(|v| v.as_i64()).collect())
-                    .unwrap_or_default();
-                token_visti += nuovi.len();
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|v| v.as_i64());
+                let quanti = nuovi.clone().count();
+                token_visti += quanti;
+                if (quanti > 0 || !contenuto.is_empty())
+                    && esito.tempi.primo_token_secondi.is_none()
+                {
+                    esito.tempi.primo_token_secondi = Some(ricevuto_a);
+                }
 
                 if dato.get("stop").and_then(|s| s.as_bool()) == Some(true) {
                     let tipo = dato
@@ -275,6 +296,14 @@ fn genera_stream(
                     esito.eos = tipo == "eos";
                     esito.limite_raggiunto = tipo == "limit";
                     if let Some(timings) = dato.get("timings") {
+                        esito.tempi.prompt_secondi = timings
+                            .get("prompt_ms")
+                            .and_then(|v| v.as_f64())
+                            .map(|ms| ms / 1000.0);
+                        esito.tempi.generazione_secondi = timings
+                            .get("predicted_ms")
+                            .and_then(|v| v.as_f64())
+                            .map(|ms| ms / 1000.0);
                         esito.token = timings
                             .get("predicted_n")
                             .and_then(|v| v.as_u64())
@@ -282,7 +311,13 @@ fn genera_stream(
                             as usize;
                         esito.token_al_secondo =
                             timings.get("predicted_per_second").and_then(|v| v.as_f64());
-                        esito.token_prompt = timings.get("prompt_n").and_then(|v| v.as_u64());
+                        // prompt_n conta solo i token ricalcolati. Nei retry
+                        // aggiungiamo quelli riusati per descrivere ancora
+                        // l'intero prompt, non un prompt apparente di 1 token.
+                        esito.token_prompt =
+                            timings.get("prompt_n").and_then(|v| v.as_u64()).map(|n| {
+                                n + timings.get("cache_n").and_then(|v| v.as_u64()).unwrap_or(0)
+                            });
                     }
                     break;
                 }
@@ -327,6 +362,7 @@ pub struct Tentativo {
     pub secondi: f64,
     pub token_al_secondo: Option<f64>,
     pub descrizione_ciclo: Option<String>,
+    pub tempi: TempiInferenza,
 }
 
 pub struct EsitoPagina {
@@ -363,6 +399,7 @@ pub fn esegui(
         let esito = genera_stream(
             contesto,
             extra,
+            indice > 0,
             Some(&mut rilevatore),
             !ultimo_stadio,
             su_evento,
@@ -382,6 +419,7 @@ pub fn esegui(
             secondi: esito.secondi,
             token_al_secondo: esito.token_al_secondo,
             descrizione_ciclo: esito.descrizione_ciclo.clone(),
+            tempi: esito.tempi.clone(),
         });
         annullata = esito.annullato;
         let chiuso = esito.eos && !esito.interrotto_per_ciclo;
@@ -422,6 +460,91 @@ pub fn esegui(
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn i_retry_riusano_il_prompt_ma_la_pagina_successiva_no() {
+        use std::io::{BufRead, BufReader, Read, Write};
+        use std::net::TcpListener;
+
+        let listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+        let porta = listener.local_addr().unwrap().port();
+        let server = std::thread::spawn(move || {
+            let mut richieste = Vec::new();
+            // Primo tentativo interrotto per ciclo, attesa slot, due retry,
+            // poi il primo tentativo di una pagina nuova.
+            for indice in 0..5 {
+                let (mut socket, _) = listener.accept().unwrap();
+                socket
+                    .set_read_timeout(Some(Duration::from_secs(5)))
+                    .unwrap();
+                let mut lettore = BufReader::new(&socket);
+                let mut riga = String::new();
+                lettore.read_line(&mut riga).unwrap();
+                let slot = riga.starts_with("GET /slots ");
+                let mut lunghezza = 0;
+                loop {
+                    riga.clear();
+                    lettore.read_line(&mut riga).unwrap();
+                    if riga == "\r\n" {
+                        break;
+                    }
+                    if let Some((nome, valore)) = riga.split_once(':') {
+                        if nome.eq_ignore_ascii_case("content-length") {
+                            lunghezza = valore.trim().parse::<usize>().unwrap();
+                        }
+                    }
+                }
+                let mut corpo = vec![0; lunghezza];
+                lettore.read_exact(&mut corpo).unwrap();
+                drop(lettore);
+                let risposta = if slot {
+                    assert_eq!(indice, 1);
+                    "[{\"is_processing\":false}]".to_string()
+                } else {
+                    richieste.push(serde_json::from_slice::<serde_json::Value>(&corpo).unwrap());
+                    let evento = if indice == 0 {
+                        json!({"content":"ciclo", "tokens": vec![42; 16], "stop":false})
+                    } else {
+                        json!({"content":"testo", "stop":true,
+                            "stop_type": if indice == 2 { "limit" } else { "eos" },
+                            "timings": {"predicted_n":1, "prompt_n":1, "cache_n":1541}})
+                    };
+                    format!("data: {evento}\n\n")
+                };
+                write!(
+                    socket,
+                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                    risposta.len(),
+                    risposta
+                )
+                .unwrap();
+            }
+            richieste
+        });
+        let annulla = Arc::new(AtomicBool::new(false));
+        let mut contesto = Contesto {
+            porta,
+            prompt: "prompt",
+            immagine_base64: "pagina-1",
+            annulla: &annulla,
+        };
+        let prima = esegui(&contesto, &mut |_| {}).unwrap();
+        assert!(prima.completata);
+        assert_eq!(prima.tentativi.len(), 3);
+        assert!(prima.tentativi[0].interrotto_per_ciclo);
+        assert_eq!(prima.token_prompt, Some(1542));
+        contesto.immagine_base64 = "pagina-2";
+        assert!(esegui(&contesto, &mut |_| {}).unwrap().completata);
+        let richieste = server.join().unwrap();
+        let cache: Vec<_> = richieste
+            .iter()
+            .map(|r| r["cache_prompt"].as_bool().unwrap())
+            .collect();
+        assert_eq!(cache, [false, true, true, false]);
+        assert_eq!(richieste[1]["frequency_penalty"], 0.35);
+        assert_eq!(richieste[2]["presence_penalty"], 0.0);
+        assert_eq!(richieste[3]["prompt"]["multimodal_data"][0], "pagina-2");
+    }
 
     #[test]
     fn il_ciclo_scatta_solo_con_otto_ripetizioni() {

@@ -154,6 +154,7 @@ try {
   }
 
   # ------------------------------------------------------------------ motore
+  & (Join-Path $PSScriptRoot 'patch-motore.ps1') -Llama $Llama
   Titolo "llama.cpp: Vulkan + varianti CPU, CUDA se disponibile"
   $argomentiCmake = @(
     "-S", $Llama, "-B", $BuildDir,

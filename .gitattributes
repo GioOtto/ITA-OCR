@@ -12,6 +12,7 @@
 *.html text eol=lf
 *.css text eol=lf
 *.js text eol=lf
+*.patch text eol=lf whitespace=-blank-at-eol
 
 # Materiale di terze parti: si conserva come e' stato ricevuto.
 licenses/** -text
